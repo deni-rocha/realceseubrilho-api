@@ -25,9 +25,7 @@ export class ProductService {
         throw new NotFoundException(`Categoria de produto com ID "${categoryId}" não encontrada`);
       }
     }
-
-
-    
+ 
     const newProduct = this.productRepository.create(
       category ? { ...productData, category } : { ...productData }
     );

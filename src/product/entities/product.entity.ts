@@ -16,7 +16,7 @@ export class Product extends BaseEntity {
   description: string;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
-  price: number; // Use number aqui, mas lembre-se de lidar com precisão com Decimal.js no serviço!
+  price: string;
 
   @Column({ type: 'int', nullable: false, default: 0 })
   stockQuantity: number;
@@ -30,19 +30,16 @@ export class Product extends BaseEntity {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP', name: 'updated_at', nullable: false })
   updatedAt: Date;
 
-  // Relacionamento com ProductCategory (Muitos produtos para uma categoria)
   @ManyToOne(() => ProductCategory, category => category.products, {
-    nullable: true, // Um produto pode ou não ter uma categoria
-    onDelete: 'SET NULL', // Opcional: Se a categoria for deletada, a FK se torna NULL
+    nullable: true,
+    onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'category_id' })
   category: ProductCategory;
 
-  // Um produto pode estar em muitos itens de carrinho
   @OneToMany(() => CartItem, cartItem => cartItem.product)
   cartItems: CartItem[];
 
-  // Um produto pode estar em muitos itens de pedido
   @OneToMany(() => OrderItem, orderItem => orderItem.product)
   orderItems: OrderItem[];
 }

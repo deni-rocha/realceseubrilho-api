@@ -11,7 +11,7 @@ export class CreateProductDto {
 
   @IsNotEmpty()
   @IsNumber()
-  price: number;
+  price: string;
 
   @IsOptional()
   @IsInt()
