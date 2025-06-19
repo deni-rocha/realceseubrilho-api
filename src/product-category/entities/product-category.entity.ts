@@ -1,3 +1,4 @@
+import { Product } from '@/product/entities/product.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, BaseEntity } from 'typeorm';
 
 @Entity('product_categories')
@@ -17,7 +18,6 @@ export class ProductCategory extends BaseEntity {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP', name: 'updated_at', nullable: false })
   updatedAt: Date;
 
-  // Uma categoria pode ter muitos produtos
   @OneToMany(() => Product, product => product.category)
   products: Product[];
 }

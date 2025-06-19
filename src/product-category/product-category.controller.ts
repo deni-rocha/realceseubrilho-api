@@ -1,11 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Inject } from '@nestjs/common';
 import { ProductCategoryService } from './product-category.service';
 import { CreateProductCategoryDto } from './dto/create-product-category.dto';
 import { UpdateProductCategoryDto } from './dto/update-product-category.dto';
 
 @Controller('product-category')
 export class ProductCategoryController {
-  constructor(private readonly productCategoryService: ProductCategoryService) {}
+  constructor(
+    @Inject(ProductCategoryService)
+    private readonly productCategoryService: ProductCategoryService
+  ) {}
 
   @Post()
   create(@Body() createProductCategoryDto: CreateProductCategoryDto) {
@@ -19,16 +22,16 @@ export class ProductCategoryController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.productCategoryService.findOne(+id);
+    return this.productCategoryService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateProductCategoryDto: UpdateProductCategoryDto) {
-    return this.productCategoryService.update(+id, updateProductCategoryDto);
+    return this.productCategoryService.update(id, updateProductCategoryDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.productCategoryService.remove(+id);
+    return this.productCategoryService.remove(id);
   }
 }
