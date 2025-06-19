@@ -1,0 +1,37 @@
+services:
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=realcestore # Nome do banco
+      - POSTGRES_USER=frevolink # Usuário
+      - POSTGRES_PASSWORD=flpassword # Senha
+    ports:
+      - '5432:5432' # Porta do host:porta do container
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql # Script de inicialização
+      - postgres_data:/var/lib/postgresql/data # Volume para persistência
+    networks:
+      - api-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U frevolink -d realcestore']
+      interval: 5s
+      timeout: 5s
+  #     retries: 5
+  # api:
+  #   build: .
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   ports:
+  #     - '3000:3000'
+  #   networks:
+  #     - api-network
+  #   env_file:
+  #     - .env.prod
+volumes:
+  postgres_data:
+    # Define o volume nomeado
+
+networks:
+  #criação de network personalizada (permite conexão entre os containers por DNS)
+  api-network:
