@@ -11,7 +11,10 @@ export class CartItem extends BaseEntity {
   quantity: number;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, name: 'unit_price', nullable: false })
-  unitPrice: number; // Preço do produto no momento em que foi adicionado ao carrinho
+  unitPrice: string;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, name: 'sub_total', nullable: false })
+  subtotal: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', name: 'created_at', nullable: false })
   createdAt: Date;
@@ -19,7 +22,7 @@ export class CartItem extends BaseEntity {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP', name: 'updated_at', nullable: false })
   updatedAt: Date;
 
-  // Relacionamento com ShoppingCart (Muitos itens de carrinho para um carrinho)
+  
   @ManyToOne(() => ShoppingCart, cart => cart.cartItems, {
     nullable: false,
     onDelete: 'CASCADE', // Se o carrinho for deletado, os itens também

@@ -1,7 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, BaseEntity } from 'typeorm';
-import { Order } from '../order/order.entity'; // Importa Order
-import { PaymentStatus } from './payment-status.enum'; // Importa o enum de status
-import { PaymentMethod } from './payment-method.enum'; // Importa o enum de método
+import { PaymentStatus } from '../payment-status.enum';
+import { PaymentMethod } from '../payment.method';
+import { Order } from '@/order/entities/order.entity';
+
 
 @Entity('payments')
 export class Payment extends BaseEntity {
@@ -17,8 +18,8 @@ export class Payment extends BaseEntity {
   @Column({ type: 'enum', enum: PaymentStatus, default: PaymentStatus.PENDING, nullable: false })
   status: PaymentStatus;
 
-  @Column({ type: 'varchar', nullable: true, unique: true, name: 'transaction_id' })
-  transactionId: string; // ID da transação na operadora de pagamento
+  @Column({ type: 'varchar', nullable: true, unique: false, name: 'transaction_id' })
+  transactionId: string | null; // ID da transação na operadora de pagamento
 
   @Column({ type: 'enum', enum: PaymentMethod, nullable: false })
   method: PaymentMethod;

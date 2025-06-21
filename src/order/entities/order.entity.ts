@@ -1,8 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, OneToOne, JoinColumn, BaseEntity } from 'typeorm';
-import { User } from '../user/user.entity'; // Importa User
-import { OrderItem } from '../order-item/order-item.entity'; // Importa OrderItem
-import { Payment } from '../payment/payment.entity'; // Importa Payment
-import { OrderStatus } from './order-status.enum'; // Importa o enum de status
+import { OrderStatus } from '../order-status.enum';
+import { User } from '@/users/entities/user.entity';
+import { OrderItem } from '@/order-item/entities/order-item.entity';
+import { Payment } from '@/payment/entities/payment.entity';
+
 
 @Entity('orders')
 export class Order extends BaseEntity {

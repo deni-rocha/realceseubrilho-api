@@ -1,6 +1,6 @@
+import { Order } from '@/order/entities/order.entity';
+import { Product } from '@/product/entities/product.entity';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, BaseEntity } from 'typeorm';
-import { Order } from '../order/order.entity'; // Importa Order
-import { Product } from '../product/product.entity'; // Importa Product
 
 @Entity('order_items')
 export class OrderItem extends BaseEntity {
@@ -22,18 +22,17 @@ export class OrderItem extends BaseEntity {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP', name: 'updated_at', nullable: false })
   updatedAt: Date;
 
-  // Relacionamento com Order (Muitos itens para um pedido)
+
   @ManyToOne(() => Order, order => order.orderItems, {
     nullable: false,
-    onDelete: 'CASCADE', // Se o pedido for deletado, os itens também
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'order_id' })
   order: Order;
 
-  // Relacionamento com Product (Um item de pedido se refere a um produto)
   @ManyToOne(() => Product, product => product.orderItems, {
     nullable: false,
-    eager: true, // Carrega o produto junto com o item do pedido
+    eager: true,
   })
   @JoinColumn({ name: 'product_id' })
   product: Product;
