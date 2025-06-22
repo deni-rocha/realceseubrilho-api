@@ -1,34 +1,40 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Post, Get, Param, Body, Delete, Patch, ParseUUIDPipe } from '@nestjs/common';
 import { OrderService } from './order.service';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
+import { UpdateOrderStatusDto } from './dto/update-order-satus.dto';
+import { CreateOrderFromCartDto } from './dto/create-order-from-cart.dto';
 
-@Controller('order')
+
+
+@Controller('orders')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Post()
-  create(@Body() createOrderDto: CreateOrderDto) {
-    return this.orderService.create(createOrderDto);
+  async createOrderFromCart(@Body() createOrderFromCartDto: CreateOrderFromCartDto) {
+    return this.orderService.createOrderFromCart(createOrderFromCartDto);
   }
 
   @Get()
-  findAll() {
+  async findAll() {
     return this.orderService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.orderService.findOne(+id);
+  async findOne(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.orderService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.orderService.update(+id, updateOrderDto);
+  @Patch(':id/status')
+  async updateStatus(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: UpdateOrderStatusDto,
+  ) {
+    return this.orderService.updateStatus(id, dto.newStatus);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.orderService.remove(+id);
+  async remove(@Param('id', new ParseUUIDPipe()) id: string) {
+    await this.orderService.remove(id);
+    return { message: 'Pedido removido com sucesso.' };
   }
 }

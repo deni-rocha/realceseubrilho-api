@@ -4,9 +4,9 @@ import { Repository } from 'typeorm';
 import { OrderService } from '../order/order.service'; // Para atualizar o status do pedido
 import { Payment } from './entities/payment.entity';
 import { Order } from '@/order/entities/order.entity';
-import { PaymentMethod } from './payment.method';
 import { PaymentStatus } from './payment-status.enum';
 import { OrderStatus } from '@/order/order-status.enum';
+import { CreatePaymentDto } from './dto/create-payment.dto';
 
 @Injectable()
 export class PaymentService {
@@ -15,23 +15,26 @@ export class PaymentService {
     private readonly paymentRepository: Repository<Payment>,
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>, // Pode ser usado diretamente ou via OrderService
+    @InjectRepository(OrderService)
     private readonly orderService: OrderService, // Usaremos o OrderService para atualização de status
   ) {}
 
-  async createPayment(orderId: string, amount: number, method: PaymentMethod, transactionId?: string): Promise<Payment> {
+  async createPayment(createPaymentDto: CreatePaymentDto): Promise<Payment> {
+    const { orderId, amount, method, transactionId } = createPaymentDto;
+   
     const order = await this.orderService.findOne(orderId); // Garante que o pedido existe
     if (!order) {
-      throw new NotFoundException(`Order with ID "${orderId}" not found.`);
+      throw new NotFoundException(`Pedido com ID "${orderId}" não encontrado.`);
     }
 
     if (order.payment) {
-        throw new BadRequestException(`Order with ID "${orderId}" already has a payment associated.`);
+      throw new BadRequestException(`O pedido com ID "${orderId}" já possui um pagamento associado.`);
     }
 
     if (order.totalAmount !== amount) {
-        // Importante: Em um cenário real, você faria uma validação de valores mais robusta
-        // E possivelmente integração com um gateway de pagamento real.
-        throw new BadRequestException(`Payment amount (${amount}) does not match order total (${order.totalAmount}).`);
+      // Importante: Em um cenário real, você faria uma validação de valores mais robusta
+      // E possivelmente integração com um gateway de pagamento real.
+      throw new BadRequestException(`O valor do pagamento (${amount}) não corresponde ao total do pedido (${order.totalAmount}).`);
     }
 
     const newPayment = new Payment();
@@ -54,9 +57,11 @@ export class PaymentService {
   }
 
   async updatePaymentStatus(paymentId: string, newStatus: PaymentStatus): Promise<Payment> {
+  
+    
     const payment = await this.paymentRepository.findOne({ where: { id: paymentId }, relations: ['order'] });
     if (!payment) {
-      throw new NotFoundException(`Payment with ID "${paymentId}" not found.`);
+      throw new NotFoundException(`Pagamento com ID "${paymentId}" não encontrado.`);
     }
 
     payment.status = newStatus;
@@ -85,7 +90,7 @@ export class PaymentService {
   async findOne(id: string): Promise<Payment> {
     const payment = await this.paymentRepository.findOne({ where: { id }, relations: ['order'] });
     if (!payment) {
-      throw new NotFoundException(`Payment with ID "${id}" not found`);
+      throw new NotFoundException(`Pagamento com ID "${id}" não encontrado.`);
     }
     return payment;
   }

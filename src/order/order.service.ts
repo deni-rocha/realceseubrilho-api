@@ -9,6 +9,7 @@ import { OrderItem } from '@/order-item/entities/order-item.entity';
 import { Product } from '@/product/entities/product.entity';
 import { UsersService } from '@/users/users.service';
 import Decimal from 'decimal.js';
+import { CreateOrderFromCartDto } from './dto/create-order-from-cart.dto';
 
 @Injectable()
 export class OrderService {
@@ -17,18 +18,21 @@ export class OrderService {
     private readonly orderRepository: Repository<Order>,
     @InjectRepository(OrderItem)
     private readonly orderItemRepository: Repository<OrderItem>,
-    @InjectRepository(Product)
+    @InjectRepository(UsersService)
     private readonly usersService: UsersService,
+    @InjectRepository(ProductService)
     private readonly productService: ProductService,
+    @InjectRepository(ShoppingCartService)
     private readonly shoppingCartService: ShoppingCartService,
     private dataSource: DataSource,
   ) {}
 
   async createOrderFromCart(
-    userId: string,
-    shippingAddress: string,
-    paymentMethod: string,
+    createOrderFromCartDto: CreateOrderFromCartDto
   ): Promise<Order> {
+    
+    const { userId, shippingAddress, paymentMethod } = createOrderFromCartDto;
+    
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -126,6 +130,7 @@ export class OrderService {
   }
 
   async updateStatus(id: string, newStatus: OrderStatus): Promise<Order> {
+        
     const order = await this.findOne(id);
     order.status = newStatus;
     order.updatedAt = new Date();

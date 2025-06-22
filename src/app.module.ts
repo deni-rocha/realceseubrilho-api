@@ -7,7 +7,6 @@ import { ProductCategoryModule } from './product-category/product-category.modul
 import { ProductModule } from './product/product.module';
 import { ShoppingCartModule } from './shopping-cart/shopping-cart.module';
 import { OrderModule } from './order/order.module';
-import { OrderItemModule } from './order-item/order-item.module';
 import { PaymentModule } from './payment/payment.module';
 import { DatabaseModule } from './database/role-sedeer.module';
 
@@ -29,7 +28,6 @@ import { DatabaseModule } from './database/role-sedeer.module';
     ProductModule,
     ShoppingCartModule,
     OrderModule,
-    OrderItemModule,
     PaymentModule
   ],
   controllers: [AppController],
