@@ -8,7 +8,6 @@ services:
     ports:
       - '5432:5432' # Porta do host:porta do container
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql # Script de inicialização
       - postgres_data:/var/lib/postgresql/data # Volume para persistência
     networks:
       - api-network
