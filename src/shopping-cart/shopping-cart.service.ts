@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -27,7 +31,9 @@ export class ShoppingCartService {
       throw new NotFoundException(`Usuário com ID "${userId}" não encontrado.`);
     }
 
-    let cart = await this.shoppingCartRepository.findOne({ where: { user: { id: userId } } });
+    let cart = await this.shoppingCartRepository.findOne({
+      where: { user: { id: userId } },
+    });
     if (!cart) {
       cart = this.shoppingCartRepository.create({ user });
       await this.shoppingCartRepository.save(cart);
@@ -41,29 +47,41 @@ export class ShoppingCartService {
       relations: ['cartItems', 'cartItems.product', 'user'],
     });
     if (!cart) {
-      throw new NotFoundException(`Carrinho de compras com ID "${cartId}" não encontrado.`);
+      throw new NotFoundException(
+        `Carrinho de compras com ID "${cartId}" não encontrado.`,
+      );
     }
     return cart;
   }
 
-  async addProduct(cartId: string, productId: string, quantity: number): Promise<CartItem> {
+  async addProduct(
+    cartId: string,
+    productId: string,
+    quantity: number,
+  ): Promise<CartItem> {
     if (quantity <= 0) {
-      throw new BadRequestException('A quantidade deve ser um número positivo.');
+      throw new BadRequestException(
+        'A quantidade deve ser um número positivo.',
+      );
     }
 
     const cart = await this.getCartDetails(cartId);
     const product = await this.productService.findOne(productId);
 
     if (product.stockQuantity < quantity) {
-      throw new BadRequestException(`Estoque insuficiente para o produto "${product.name}". Disponível: ${product.stockQuantity}`);
+      throw new BadRequestException(
+        `Estoque insuficiente para o produto "${product.name}". Disponível: ${product.stockQuantity}`,
+      );
     }
 
-    let cartItem = cart.cartItems.find(item => item.product.id === productId);
+    let cartItem = cart.cartItems.find((item) => item.product.id === productId);
 
     if (cartItem) {
       cartItem.quantity += quantity;
       cartItem.unitPrice = product.price;
-      cartItem.subtotal = new Decimal(cartItem.quantity).mul(cartItem.unitPrice).toFixed(2);
+      cartItem.subtotal = new Decimal(cartItem.quantity)
+        .mul(cartItem.unitPrice)
+        .toFixed(2);
       await this.cartItemRepository.save(cartItem);
     } else {
       cartItem = this.cartItemRepository.create({
@@ -80,37 +98,51 @@ export class ShoppingCartService {
 
   async removeProduct(cartId: string, productId: string): Promise<void> {
     const cart = await this.getCartDetails(cartId);
-    const cartItem = cart.cartItems.find(item => item.product.id === productId);
+    const cartItem = cart.cartItems.find(
+      (item) => item.product.id === productId,
+    );
 
     if (!cartItem) {
-      throw new NotFoundException(`Produto com ID "${productId}" não encontrado no carrinho.`);
+      throw new NotFoundException(
+        `Produto com ID "${productId}" não encontrado no carrinho.`,
+      );
     }
 
     await this.cartItemRepository.remove(cartItem);
   }
 
-  async updateProductQuantity(cartId: string, productId: string, newQuantity: number): Promise<CartItem | null> {
+  async updateProductQuantity(
+    cartId: string,
+    productId: string,
+    newQuantity: number,
+  ): Promise<CartItem | null> {
     if (newQuantity <= 0) {
       await this.removeProduct(cartId, productId);
       return null;
     }
 
     const cart = await this.getCartDetails(cartId);
-    let cartItem = cart.cartItems.find(item => item.product.id === productId);
+    let cartItem = cart.cartItems.find((item) => item.product.id === productId);
 
     if (!cartItem) {
-      throw new NotFoundException(`Produto com ID "${productId}" não encontrado no carrinho.`);
+      throw new NotFoundException(
+        `Produto com ID "${productId}" não encontrado no carrinho.`,
+      );
     }
 
     const product = await this.productService.findOne(productId);
 
     if (product.stockQuantity < newQuantity) {
-      throw new BadRequestException(`Estoque insuficiente para o produto "${product.name}". Disponível: ${product.stockQuantity}. Solicitado: ${newQuantity}`);
+      throw new BadRequestException(
+        `Estoque insuficiente para o produto "${product.name}". Disponível: ${product.stockQuantity}. Solicitado: ${newQuantity}`,
+      );
     }
 
     cartItem.quantity = newQuantity;
     cartItem.unitPrice = product.price;
-    cartItem.subtotal = new Decimal(cartItem.quantity).mul(cartItem.unitPrice).toFixed(2);
+    cartItem.subtotal = new Decimal(cartItem.quantity)
+      .mul(cartItem.unitPrice)
+      .toFixed(2);
     return this.cartItemRepository.save(cartItem);
   }
 
@@ -123,7 +155,7 @@ export class ShoppingCartService {
     const cart = await this.getCartDetails(cartId);
     const total = cart.cartItems.reduce(
       (sum, item) => sum.plus(new Decimal(item.subtotal)),
-      new Decimal(0)
+      new Decimal(0),
     );
     return total.toFixed(2);
   }

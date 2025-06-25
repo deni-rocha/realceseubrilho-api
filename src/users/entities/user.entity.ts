@@ -27,10 +27,9 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', name: 'password_hash', nullable: false })
   password: string;
 
-  
   @Column({ type: 'boolean', default: false, nullable: false })
   verified: boolean;
-  
+
   @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
@@ -38,7 +37,7 @@ export class User extends BaseEntity {
     nullable: false,
   })
   createdAt: Date;
-  
+
   @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
@@ -47,7 +46,7 @@ export class User extends BaseEntity {
     nullable: false,
   })
   updatedAt: Date;
-  
+
   @ManyToOne(() => Role, (role) => role.users, {
     nullable: false,
     eager: false,
@@ -55,9 +54,9 @@ export class User extends BaseEntity {
   @JoinColumn({ name: 'role_id' })
   role: Role;
 
-  @OneToMany(() => ShoppingCart, shoppingCart => shoppingCart.user)
+  @OneToMany(() => ShoppingCart, (shoppingCart) => shoppingCart.user)
   shoppingCart: ShoppingCart;
 
-  @OneToMany(() => Order, order => order.user)
+  @OneToMany(() => Order, (order) => order.user)
   orders: Order[];
 }

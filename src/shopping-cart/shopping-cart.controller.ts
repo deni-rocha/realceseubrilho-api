@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, ParseUUIDPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Param,
+  Body,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { ShoppingCartService } from './shopping-cart.service';
 import { AddProductToCartDto } from '../cart-item/dto/add-product-to-cart.dto';
 import { UpdateCartItemQuantityDto } from '../cart-item/dto/update-cart-item-quantity.dto';
@@ -22,7 +31,11 @@ export class ShoppingCartController {
     @Param('cartId', new ParseUUIDPipe()) cartId: string,
     @Body() addProductDto: AddProductToCartDto,
   ) {
-    return this.shoppingCartService.addProduct(cartId, addProductDto.productId, addProductDto.quantity);
+    return this.shoppingCartService.addProduct(
+      cartId,
+      addProductDto.productId,
+      addProductDto.quantity,
+    );
   }
 
   @Patch(':cartId/items/:productId')
@@ -31,7 +44,11 @@ export class ShoppingCartController {
     @Param('productId', new ParseUUIDPipe()) productId: string,
     @Body() updateQuantityDto: UpdateCartItemQuantityDto,
   ) {
-    return this.shoppingCartService.updateProductQuantity(cartId, productId, updateQuantityDto.quantity);
+    return this.shoppingCartService.updateProductQuantity(
+      cartId,
+      productId,
+      updateQuantityDto.quantity,
+    );
   }
 
   @Delete(':cartId/items/:productId')
@@ -50,7 +67,9 @@ export class ShoppingCartController {
   }
 
   @Get(':cartId/total')
-  async calculateCartTotal(@Param('cartId', new ParseUUIDPipe()) cartId: string) {
+  async calculateCartTotal(
+    @Param('cartId', new ParseUUIDPipe()) cartId: string,
+  ) {
     const total = await this.shoppingCartService.calculateCartTotal(cartId);
     return { total };
   }

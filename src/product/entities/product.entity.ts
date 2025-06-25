@@ -1,8 +1,15 @@
 import { CartItem } from '@/cart-item/entities/cart-item.entity';
 import { OrderItem } from '@/order-item/entities/order-item.entity';
 import { ProductCategory } from '@/product-category/entities/product-category.entity';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany, BaseEntity } from 'typeorm';
-
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
+  BaseEntity,
+} from 'typeorm';
 
 @Entity('products')
 export class Product extends BaseEntity {
@@ -24,22 +31,33 @@ export class Product extends BaseEntity {
   @Column({ type: 'varchar', nullable: true })
   imageUrl: string;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', name: 'created_at', nullable: false })
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    name: 'created_at',
+    nullable: false,
+  })
   createdAt: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP', name: 'updated_at', nullable: false })
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+    name: 'updated_at',
+    nullable: false,
+  })
   updatedAt: Date;
 
-  @ManyToOne(() => ProductCategory, category => category.products, {
+  @ManyToOne(() => ProductCategory, (category) => category.products, {
     nullable: true,
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'category_id' })
   category: ProductCategory;
 
-  @OneToMany(() => CartItem, cartItem => cartItem.product)
+  @OneToMany(() => CartItem, (cartItem) => cartItem.product)
   cartItems: CartItem[];
 
-  @OneToMany(() => OrderItem, orderItem => orderItem.product)
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
   orderItems: OrderItem[];
 }

@@ -2,16 +2,16 @@ import { IsString, IsNumber, IsEnum, IsOptional } from 'class-validator';
 import { PaymentMethod } from '../payment.method';
 
 export class CreatePaymentDto {
-    @IsString()
-    orderId: string;
+  @IsString()
+  orderId: string;
 
-    @IsNumber()
-    amount: number;
+  @IsNumber()
+  amount: number;
 
-    @IsEnum(PaymentMethod)
-    method: PaymentMethod;
+  @IsEnum(PaymentMethod)
+  method: PaymentMethod;
 
-    @IsOptional()
-    @IsString()
-    transactionId?: string;
+  @IsOptional()
+  @IsString()
+  transactionId?: string;
 }

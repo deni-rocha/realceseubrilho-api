@@ -1,4 +1,10 @@
-import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -17,18 +23,15 @@ export class UsersService {
     private readonly rolesRepository: Repository<Role>,
   ) {}
 
-  
   async create(createUserDto: CreateUserDto) {
-    
     const defaultRole = await this.rolesRepository.findOne({
       where: { name: 'USER' },
     });
-   
+
     const existingUser = await this.usersRepository.findOne({
       where: { email: createUserDto.email },
     });
 
-    
     if (existingUser) throw new ConflictException('Email já cadastrado');
 
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
@@ -36,13 +39,13 @@ export class UsersService {
     const user = this.usersRepository.create({
       name: createUserDto.name,
       email: createUserDto.email,
-      password:  hashedPassword,
+      password: hashedPassword,
       role: defaultRole!,
-    })
+    });
 
     await this.usersRepository.save(user);
 
-    return  {"nome": user.name, "email": user.email, "id": user.id};
+    return { nome: user.name, email: user.email, id: user.id };
   }
 
   findAll() {
@@ -64,10 +67,10 @@ export class UsersService {
         updatedAt: true,
       },
       take: 10,
-      skip: 0, 
+      skip: 0,
     });
   }
-  
+
   findOne(id: string) {
     return this.usersRepository.findOne({
       where: { id: id },
@@ -101,9 +104,11 @@ export class UsersService {
     });
 
     if (!role) {
-      throw new BadRequestException('Erro ao atualizar, conflito ao inserir permissão do usuário');
+      throw new BadRequestException(
+        'Erro ao atualizar, conflito ao inserir permissão do usuário',
+      );
     }
-    
+
     this.usersRepository.merge(user, {
       name: updateUserDto.name,
       email: updateUserDto.email,
@@ -111,7 +116,7 @@ export class UsersService {
       role: role,
     });
     await this.usersRepository.save(user);
-    return {"id": user.id, "nome": user.name, "email": user.email};
+    return { id: user.id, nome: user.name, email: user.email };
   }
 
   async remove(id: string) {

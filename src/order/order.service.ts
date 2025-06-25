@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { OrderStatus } from './order-status.enum';
@@ -28,11 +32,10 @@ export class OrderService {
   ) {}
 
   async createOrderFromCart(
-    createOrderFromCartDto: CreateOrderFromCartDto
+    createOrderFromCartDto: CreateOrderFromCartDto,
   ): Promise<Order> {
-    
     const { userId, shippingAddress, paymentMethod } = createOrderFromCartDto;
-    
+
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -41,14 +44,19 @@ export class OrderService {
       const user = await this.usersService.findOne(userId);
 
       if (!user) {
-        throw new NotFoundException(`Usuário com ID "${userId}" não encontrado`);
+        throw new NotFoundException(
+          `Usuário com ID "${userId}" não encontrado`,
+        );
       }
 
-      const cartId = (await this.shoppingCartService.findOrCreateCart(userId)).id;
+      const cartId = (await this.shoppingCartService.findOrCreateCart(userId))
+        .id;
       const cart = await this.shoppingCartService.getCartDetails(cartId);
 
       if (!cart.cartItems || cart.cartItems.length === 0) {
-        throw new BadRequestException('Não é possível criar um pedido a partir de um carrinho vazio.');
+        throw new BadRequestException(
+          'Não é possível criar um pedido a partir de um carrinho vazio.',
+        );
       }
 
       let totalAmount = new Decimal(0);
@@ -80,7 +88,6 @@ export class OrderService {
         product.stockQuantity -= cartItem.quantity;
         await queryRunner.manager.save(Product, product);
       }
-
 
       const newOrder = new Order();
       newOrder.user = user;
@@ -130,7 +137,6 @@ export class OrderService {
   }
 
   async updateStatus(id: string, newStatus: OrderStatus): Promise<Order> {
-        
     const order = await this.findOne(id);
     order.status = newStatus;
     order.updatedAt = new Date();

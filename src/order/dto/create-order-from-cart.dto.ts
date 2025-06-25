@@ -1,5 +1,5 @@
-import { PaymentMethod } from "@/payment/payment.method";
-import { IsString } from "class-validator";
+import { PaymentMethod } from '@/payment/payment.method';
+import { IsString } from 'class-validator';
 
 export class CreateOrderFromCartDto {
   @IsString()
@@ -7,7 +7,7 @@ export class CreateOrderFromCartDto {
 
   @IsString()
   shippingAddress: string;
-  
+
   @IsString()
   paymentMethod: PaymentMethod;
 }

@@ -28,7 +28,7 @@ import { DatabaseModule } from './database/role-sedeer.module';
     ProductModule,
     ShoppingCartModule,
     OrderModule,
-    PaymentModule
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

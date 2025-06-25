@@ -1,4 +1,12 @@
-import { Controller, Post, Patch, Get, Param, Body, ParseUUIDPipe } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Patch,
+  Get,
+  Param,
+  Body,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
@@ -17,7 +25,10 @@ export class PaymentController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() updatePaymentStatusDto: UpdatePaymentDto,
   ) {
-    return this.paymentService.updatePaymentStatus(id, updatePaymentStatusDto.newStatus);
+    return this.paymentService.updatePaymentStatus(
+      id,
+      updatePaymentStatusDto.newStatus,
+    );
   }
 
   @Get()

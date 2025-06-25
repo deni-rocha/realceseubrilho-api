@@ -20,14 +20,18 @@ export class ProductService {
     let category: ProductCategory | null = null;
 
     if (categoryId) {
-      category = await this.categoryRepository.findOne({ where: { id: categoryId } });
+      category = await this.categoryRepository.findOne({
+        where: { id: categoryId },
+      });
       if (!category) {
-        throw new NotFoundException(`Categoria de produto com ID "${categoryId}" não encontrada`);
+        throw new NotFoundException(
+          `Categoria de produto com ID "${categoryId}" não encontrada`,
+        );
       }
     }
- 
+
     const newProduct = this.productRepository.create(
-      category ? { ...productData, category } : { ...productData }
+      category ? { ...productData, category } : { ...productData },
     );
     return this.productRepository.save(newProduct);
   }
@@ -37,20 +41,30 @@ export class ProductService {
   }
 
   async findOne(id: string): Promise<Product> {
-    const product = await this.productRepository.findOne({ where: { id }, relations: ['category'] });
+    const product = await this.productRepository.findOne({
+      where: { id },
+      relations: ['category'],
+    });
     if (!product) {
       throw new NotFoundException(`Produto com ID "${id}" não encontrado`);
     }
     return product;
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto): Promise<Product> {
+  async update(
+    id: string,
+    updateProductDto: UpdateProductDto,
+  ): Promise<Product> {
     const product = await this.findOne(id);
 
     if (updateProductDto.categoryId) {
-      const newCategory = await this.categoryRepository.findOne({ where: { id: updateProductDto.categoryId } });
+      const newCategory = await this.categoryRepository.findOne({
+        where: { id: updateProductDto.categoryId },
+      });
       if (!newCategory) {
-        throw new NotFoundException(`Categoria de produto com ID "${updateProductDto.categoryId}" não encontrada`);
+        throw new NotFoundException(
+          `Categoria de produto com ID "${updateProductDto.categoryId}" não encontrada`,
+        );
       }
       product.category = newCategory;
     }

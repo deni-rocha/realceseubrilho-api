@@ -4,15 +4,8 @@ import { RoleSeederService } from './role-sedeer.service';
 import { Role } from '@/role/entities/role.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Role]),
-  ],
-  providers: [
-    RoleSeederService,
-  ],
-  exports: [
-    TypeOrmModule.forFeature([Role]),
-    RoleSeederService,
-  ],
+  imports: [TypeOrmModule.forFeature([Role])],
+  providers: [RoleSeederService],
+  exports: [TypeOrmModule.forFeature([Role]), RoleSeederService],
 })
 export class DatabaseModule {}

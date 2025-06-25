@@ -20,11 +20,16 @@ export class RoleSeederService implements OnModuleInit {
   async seedRoles() {
     const defaultRoles = [
       { name: 'USER', description: 'Cliente padrão da loja' },
-      { name: 'ADMIN', description: 'Administrador do sistema com acesso total' },
+      {
+        name: 'ADMIN',
+        description: 'Administrador do sistema com acesso total',
+      },
     ];
 
     for (const roleData of defaultRoles) {
-      const existingRole = await this.roleRepository.findOne({ where: { name: roleData.name } });
+      const existingRole = await this.roleRepository.findOne({
+        where: { name: roleData.name },
+      });
 
       if (!existingRole) {
         const newRole = this.roleRepository.create(roleData);
