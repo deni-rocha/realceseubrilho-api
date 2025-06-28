@@ -15,18 +15,25 @@ services:
       test: ['CMD-SHELL', 'pg_isready -U frevolink -d realcestore']
       interval: 5s
       timeout: 5s
-  #     retries: 5
-  # api:
-  #   build: .
-  #   depends_on:
-  #     db:
-  #       condition: service_healthy
-  #   ports:
-  #     - '3000:3000'
-  #   networks:
-  #     - api-network
-  #   env_file:
-  #     - .env.prod
+      retries: 3
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - '3000:3000'
+    networks:
+      - api-network
+    environment:
+    - DB_HOST=db
+    - DB_PORT=5432
+    - DB_USERNAME=frevolink
+    - DB_PASSWORD=flpassword
+    - DB_DATABASE=realcestore
+    - JWT_SECRET=p0V1X2a8b$#nD!9LqTz@7RmF^YwK&3Jh
+    - PORT=3000
+    - NODE_ENV=production
 volumes:
   postgres_data:
     # Define o volume nomeado
