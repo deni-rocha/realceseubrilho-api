@@ -34,6 +34,10 @@ services:
     - JWT_SECRET=p0V1X2a8b$#nD!9LqTz@7RmF^YwK&3Jh
     - PORT=3000
     - NODE_ENV=production
+    # Admin padrão
+    - ADMIN_EMAIL=admin@realceseubrilho.com
+    - ADMIN_PASSWORD=admin123
+    - ADMIN_NAME=Administrador do Sistema
 volumes:
   postgres_data:
     # Define o volume nomeado

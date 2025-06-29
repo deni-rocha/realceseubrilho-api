@@ -28,7 +28,7 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsString()
-  role: string;
+  role?: string;
 
   @IsOptional()
   @IsBoolean()

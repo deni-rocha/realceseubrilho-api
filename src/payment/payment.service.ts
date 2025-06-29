@@ -19,7 +19,6 @@ export class PaymentService {
     private readonly paymentRepository: Repository<Payment>,
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>, // Pode ser usado diretamente ou via OrderService
-    @InjectRepository(OrderService)
     private readonly orderService: OrderService, // Usaremos o OrderService para atualização de status
   ) {}
 

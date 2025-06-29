@@ -2,7 +2,6 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -23,10 +22,48 @@ export class UsersService {
     private readonly rolesRepository: Repository<Role>,
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
-    const defaultRole = await this.rolesRepository.findOne({
-      where: { name: 'USER' },
+  // 🔧 Método base para evitar repetição
+  private async findUserWithRelations(
+    where: any,
+    includePassword: boolean = false
+  ) {
+    const select: any = {
+      id: true,
+      name: true,
+      email: true,
+      verified: true,
+      createdAt: true,
+      updatedAt: true,
+      role: {
+        id: true,
+        name: true,
+      },
+    };
+
+    if (includePassword) {
+      select.password = true;
+    }
+
+    return this.usersRepository.findOne({
+      where,
+      relations: ['role'],
+      select,
     });
+  }
+
+  async create(createUserDto: CreateUserDto) {
+    if (!createUserDto.role) {
+      createUserDto.role = 'CUSTOMER';
+    }
+
+    const role = await this.rolesRepository.findOne({
+      where: { name: createUserDto.role },
+    });
+
+    if (!role) {
+      throw new BadRequestException('Role não encontrada');
+    }
+
 
     const existingUser = await this.usersRepository.findOne({
       where: { email: createUserDto.email },
@@ -40,12 +77,12 @@ export class UsersService {
       name: createUserDto.name,
       email: createUserDto.email,
       password: hashedPassword,
-      role: defaultRole!,
+      role: role,
     });
 
     await this.usersRepository.save(user);
 
-    return { nome: user.name, email: user.email, id: user.id };
+    return { name: user.name, email: user.email, id: user.id };
   }
 
   findAll() {
@@ -72,24 +109,13 @@ export class UsersService {
   }
 
   findOne(id: string) {
-    return this.usersRepository.findOne({
-      where: { id: id },
-      relations: ['role'],
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: {
-          id: true,
-          name: true,
-        },
-        verified: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
+    return this.findUserWithRelations({ id });
   }
 
+  findByEmail(email: string) {
+    return this.findUserWithRelations({ email }, true); // true = incluir password
+  }
+  
   async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.usersRepository.findOne({
       where: { id: id },
@@ -116,7 +142,7 @@ export class UsersService {
       role: role,
     });
     await this.usersRepository.save(user);
-    return { id: user.id, nome: user.name, email: user.email };
+    return { id: user.id, name: user.name, email: user.email };
   }
 
   async remove(id: string) {

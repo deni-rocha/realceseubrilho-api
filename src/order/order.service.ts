@@ -22,14 +22,11 @@ export class OrderService {
     private readonly orderRepository: Repository<Order>,
     @InjectRepository(OrderItem)
     private readonly orderItemRepository: Repository<OrderItem>,
-    @InjectRepository(UsersService)
     private readonly usersService: UsersService,
-    @InjectRepository(ProductService)
     private readonly productService: ProductService,
-    @InjectRepository(ShoppingCartService)
     private readonly shoppingCartService: ShoppingCartService,
     private dataSource: DataSource,
-  ) {}
+  ) { }
 
   async createOrderFromCart(
     createOrderFromCartDto: CreateOrderFromCartDto,

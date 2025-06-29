@@ -19,9 +19,7 @@ export class ShoppingCartService {
     private readonly shoppingCartRepository: Repository<ShoppingCart>,
     @InjectRepository(CartItem)
     private readonly cartItemRepository: Repository<CartItem>,
-    @InjectRepository(UsersService)
     private readonly userService: UsersService,
-    @InjectRepository(ProductService)
     private readonly productService: ProductService,
   ) {}
 

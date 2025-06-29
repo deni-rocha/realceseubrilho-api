@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Role } from '../role/entities/role.entity';
+import { Role } from '../../role/entities/role.entity';
 
 @Injectable()
 export class RoleSeederService implements OnModuleInit {
@@ -19,7 +19,7 @@ export class RoleSeederService implements OnModuleInit {
 
   async seedRoles() {
     const defaultRoles = [
-      { name: 'USER', description: 'Cliente padrão da loja' },
+      { name: 'CUSTOMER', description: 'Cliente da loja' },
       {
         name: 'ADMIN',
         description: 'Administrador do sistema com acesso total',
