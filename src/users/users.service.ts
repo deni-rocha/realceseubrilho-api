@@ -8,7 +8,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
+import { Repository, QueryRunner } from 'typeorm';
 import { Role } from '@/role/entities/role.entity';
 import * as bcrypt from 'bcrypt';
 
@@ -171,5 +171,37 @@ export class UsersService {
     await this.usersRepository.save(user);
 
     return { message: 'Usuário verificado com sucesso' };
+  }
+
+  async createWithTransaction(createUserDto: CreateUserDto, queryRunner: QueryRunner) {
+    if (!createUserDto.role) {
+      createUserDto.role = 'CUSTOMER';
+    }
+
+    const role = await this.rolesRepository.findOne({
+      where: { name: createUserDto.role },
+    });
+
+    if (!role) {
+      throw new BadRequestException('Role não encontrada');
+    }
+
+    const existingUser = await this.usersRepository.findOne({
+      where: { email: createUserDto.email },
+    });
+
+    if (existingUser) throw new ConflictException('Email já cadastrado');
+
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+
+    const user = this.usersRepository.create({
+      name: createUserDto.name,
+      email: createUserDto.email,
+      password: hashedPassword,
+      role: role,
+    });
+
+    // Usar o queryRunner para salvar
+    return await queryRunner.manager.save(User, user);
   }
 }

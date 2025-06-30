@@ -8,17 +8,16 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { User } from '@/users/entities/user.entity';
 import { Role } from '@/role/entities/role.entity';
-import { UsersModule } from '@/users/users.module';
-import { JWT_SECRET } from './constants/jwt.constants';
-import { EmailModule } from '@/email/email.module';
-import { EmailService } from '@/email/email.service';
 import { EmailVerificationToken } from '@/email/entities/email-verification-token.entity';
+import { UsersModule } from '@/users/users.module';
+import { EmailModule } from '@/email/email.module';
+import { JWT_SECRET } from './constants/jwt.constants';
 
 @Module({
   imports: [
     UsersModule,
-    PassportModule,
     EmailModule,
+    PassportModule,
     TypeOrmModule.forFeature([User, Role, EmailVerificationToken]),
     JwtModule.register({
       secret: JWT_SECRET,
@@ -26,7 +25,7 @@ import { EmailVerificationToken } from '@/email/entities/email-verification-toke
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, LocalStrategy, EmailService],
+  providers: [AuthService, JwtStrategy, LocalStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}

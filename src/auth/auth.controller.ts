@@ -30,4 +30,9 @@ export class AuthController {
   async verifyEmail(@Body() verifyDto: VerifyEmailDto) {
     return this.authService.verifyEmail(verifyDto);
   }
+
+  @Post('test-email')
+  async testEmail() {
+    return this.authService.testEmailConnection();
+  }
 }

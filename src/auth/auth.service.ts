@@ -6,18 +6,15 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { UsersService } from '@/users/users.service';
 import { EmailService } from '@/email/email.service';
-import { EmailVerificationToken } from '@/email/entities/email-verification-token.entity';
+import { EmailVerificationService } from '@/email/email-verification.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
-
-import * as bcrypt from 'bcrypt';
-import { v4 as uuidv4 } from 'uuid';
 import { RequestEmailVerificationDto } from '@/email/dto/request-email.verification.dto';
 import { VerifyEmailDto } from '@/email/dto/verify-email.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -25,8 +22,8 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
-    @InjectRepository(EmailVerificationToken)
-    private readonly emailVerificationTokenRepository: Repository<EmailVerificationToken>,
+    private readonly emailVerificationService: EmailVerificationService,
+    private readonly dataSource: DataSource,
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
@@ -65,15 +62,33 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto) {
-    try {
-      const user = await this.usersService.create({
-        name: registerDto.name,
-        email: registerDto.email,
-        password: registerDto.password,
-      });
+    // Iniciar transação
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-      // Gerar token de verificação
-      await this.generateAndSendVerificationToken(user.id, user.email, user.name);
+    try {
+      // 1. Criar usuário
+      const user = await this.usersService.createWithTransaction(
+        registerDto,
+        queryRunner
+      );
+
+      // 2. Gerar token de verificação
+      const verificationToken = await this.emailVerificationService.createTokenWithTransaction(
+        user.id,
+        queryRunner
+      );
+
+      // 3. Enviar e-mail (se falhar, a transação será revertida)
+      await this.emailService.sendVerificationEmail(
+        user.email,
+        user.name,
+        verificationToken.token
+      );
+
+      // 4. Se tudo der certo, commit da transação
+      await queryRunner.commitTransaction();
 
       const payload = { 
         email: user.email, 
@@ -92,11 +107,22 @@ export class AuthService {
         access_token: this.jwtService.sign(payload),
         message: 'Conta criada com sucesso! Verifique seu e-mail para ativar sua conta.',
       };
+
     } catch (error) {
+      // 5. Se algo der errado, rollback da transação
+      await queryRunner.rollbackTransaction();
+      
       if (error instanceof ConflictException) {
         throw new ConflictException('Email já cadastrado');
       }
-      throw error;
+      
+      // Log do erro para debugging
+      console.error('Erro no registro:', error);
+      throw new Error('Falha ao criar conta. Tente novamente.');
+      
+    } finally {
+      // 6. Sempre liberar o queryRunner
+      await queryRunner.release();
     }
   }
 
@@ -119,10 +145,7 @@ export class AuthService {
   }
 
   async verifyEmail(verifyDto: VerifyEmailDto) {
-    const token = await this.emailVerificationTokenRepository.findOne({
-      where: { token: verifyDto.token },
-      relations: ['user'],
-    });
+    const token = await this.emailVerificationService.findToken(verifyDto.token);
 
     if (!token) {
       throw new BadRequestException('Token inválido');
@@ -137,8 +160,7 @@ export class AuthService {
     }
 
     // Marcar token como usado
-    token.used = true;
-    await this.emailVerificationTokenRepository.save(token);
+    await this.emailVerificationService.markTokenAsUsed(token.id);
 
     // Marcar usuário como verificado
     await this.usersService.markAsVerified(token.user.id);
@@ -148,27 +170,28 @@ export class AuthService {
     };
   }
 
+  async testEmailConnection() {
+    try {
+      const result = await this.emailService.testConnection();
+      return {
+        success: true,
+        message: 'Teste de conexão com e-mail realizado com sucesso!',
+        details: result,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Erro no teste de conexão com e-mail',
+        error: error.message,
+      };
+    }
+  }
+
   private async generateAndSendVerificationToken(userId: string, email: string, name: string) {
-    // Invalidar tokens anteriores
-    await this.emailVerificationTokenRepository.update(
-      { user: { id: userId }, used: false },
-      { used: true }
-    );
-
-    // Gerar novo token
-    const token = uuidv4();
-    const expiresAt = new Date();
-    expiresAt.setHours(expiresAt.getHours() + 24); // Expira em 24 horas
-
-    const verificationToken = this.emailVerificationTokenRepository.create({
-      token,
-      expiresAt,
-      user: { id: userId },
-    });
-
-    await this.emailVerificationTokenRepository.save(verificationToken);
+    // Criar token usando o serviço
+    const verificationToken = await this.emailVerificationService.createToken(userId);
 
     // Enviar e-mail
-    await this.emailService.sendVerificationEmail(email, name, token);
+    await this.emailService.sendVerificationEmail(email, name, verificationToken.token);
   }
 }

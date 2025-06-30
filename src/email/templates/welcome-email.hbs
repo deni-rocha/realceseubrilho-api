@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bem-vindo ao Realce Seu Brilho!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #28a745;
+            margin-bottom: 10px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .button:hover {
+            background-color: #218838;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+        .features {
+            background-color: #e8f5e8;
+            border: 1px solid #c3e6c3;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🎉 Realce Seu Brilho</div>
+            <h2>Bem-vindo(a)!</h2>
+        </div>
+        
+        <p>Olá <strong>{{name}}</strong>! 👋</p>
+        
+        <p>🎊 <strong>Parabéns!</strong> Sua conta foi verificada com sucesso e você agora faz parte da família <strong>Realce Seu Brilho</strong>!</p>
+        
+        <p>Estamos muito felizes em tê-lo(a) conosco. Agora você pode aproveitar todos os nossos serviços e produtos.</p>
+        
+        <div class="features">
+            <h3>🌟 O que você pode fazer agora:</h3>
+            <ul>
+                <li>🛍️ Fazer compras em nossa loja</li>
+                <li>�� Gerenciar seus pedidos</li>
+                <li>📱 Acompanhar entregas</li>
+                <li>⭐ Avaliar produtos</li>
+                <li>💬 Receber ofertas exclusivas</li>
+            </ul>
+        </div>
+        
+        <div style="text-align: center;">
+            <a href="{{dashboardUrl}}" class="button">
+                �� Começar a Comprar
+            </a>
+        </div>
+        
+        <p>Se você tiver alguma dúvida ou precisar de ajuda, nossa equipe está sempre pronta para ajudar!</p>
+        
+        <div class="footer">
+            <p>Atenciosamente,<br>
+            <strong>Equipe Realce Seu Brilho</strong></p>
+            
+            <p>Precisa de ajuda? Entre em contato conosco:<br>
+            �� <a href="mailto:{{supportEmail}}">{{supportEmail}}</a></p>
+            
+            <p style="margin-top: 20px; font-size: 10px; color: #999;">
+                Este e-mail foi enviado automaticamente. Por favor, não responda a esta mensagem.
+            </p>
+        </div>
+    </div>
+</body>
+</html> 
