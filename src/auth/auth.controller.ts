@@ -3,6 +3,8 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import { RequestEmailVerificationDto } from '@/email/dto/request-email.verification.dto';
+import { VerifyEmailDto } from '@/email/dto/verify-email.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -17,5 +19,15 @@ export class AuthController {
   @Post('login')
   async login(@Body() loginDto: LoginDto, @Request() req) {
     return this.authService.login(loginDto);
+  }
+
+  @Post('request-email-verification')
+  async requestEmailVerification(@Body() requestDto: RequestEmailVerificationDto) {
+    return this.authService.requestEmailVerification(requestDto);
+  }
+
+  @Post('verify-email')
+  async verifyEmail(@Body() verifyDto: VerifyEmailDto) {
+    return this.authService.verifyEmail(verifyDto);
   }
 }

@@ -38,6 +38,13 @@ services:
     - ADMIN_EMAIL=admin@realceseubrilho.com
     - ADMIN_PASSWORD=admin123
     - ADMIN_NAME=Administrador do Sistema
+     # Configurações de Email
+    - SMTP_HOST=smtp.gmail.com
+    - SMTP_PORT=587
+    - SMTP_USER=frevolink@gmail.com
+    - SMTP_PASS=kchh eclr uqyq cqdp
+    - FRONTEND_URL=http://localhost:3000
+    - SUPPORT_EMAIL=frevolink@gmail.com
 volumes:
   postgres_data:
     # Define o volume nomeado

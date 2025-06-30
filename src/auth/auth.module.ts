@@ -10,19 +10,23 @@ import { User } from '@/users/entities/user.entity';
 import { Role } from '@/role/entities/role.entity';
 import { UsersModule } from '@/users/users.module';
 import { JWT_SECRET } from './constants/jwt.constants';
+import { EmailModule } from '@/email/email.module';
+import { EmailService } from '@/email/email.service';
+import { EmailVerificationToken } from '@/email/entities/email-verification-token.entity';
 
 @Module({
   imports: [
     UsersModule,
     PassportModule,
-    TypeOrmModule.forFeature([User, Role]),
+    EmailModule,
+    TypeOrmModule.forFeature([User, Role, EmailVerificationToken]),
     JwtModule.register({
       secret: JWT_SECRET,
       signOptions: { expiresIn: '24h' },
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, LocalStrategy],
+  providers: [AuthService, JwtStrategy, LocalStrategy, EmailService],
   exports: [AuthService],
 })
 export class AuthModule {}

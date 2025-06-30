@@ -11,6 +11,7 @@ import { PaymentModule } from './payment/payment.module';
 import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
 import * as dotenv from 'dotenv';
+import { EmailModule } from './email/email.module';
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ dotenv.config();
     OrderModule,
     PaymentModule,
     AuthModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

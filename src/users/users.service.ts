@@ -157,4 +157,19 @@ export class UsersService {
     await this.usersRepository.remove(user);
     return { message: 'Usuário removido com sucesso' };
   }
+
+  async markAsVerified(userId: string) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    user.verified = true;
+    await this.usersRepository.save(user);
+
+    return { message: 'Usuário verificado com sucesso' };
+  }
 }
