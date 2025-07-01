@@ -5,6 +5,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
 import { ProductCategory } from '@/product-category/entities/product-category.entity';
+import { Decimal } from 'decimal.js';
 
 @Injectable()
 export class ProductService {
@@ -30,8 +31,10 @@ export class ProductService {
       }
     }
 
+    const price = new Decimal(productData.price).toFixed(2);
+
     const newProduct = this.productRepository.create(
-      category ? { ...productData, category } : { ...productData },
+      category ? { ...productData, category, price } : { ...productData, price },
     );
     return this.productRepository.save(newProduct);
   }
@@ -88,5 +91,11 @@ export class ProductService {
       product.stockQuantity = 0;
     }
     return this.productRepository.save(product);
+  }
+
+  async calculateTotal(products: Product[]): Promise<string> {
+    return products.reduce((total, product) => {
+      return total.plus(new Decimal(product.price));
+    }, new Decimal(0)).toFixed(2);
   }
 }

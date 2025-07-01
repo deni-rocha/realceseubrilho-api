@@ -1,3 +1,5 @@
+import { IsDecimalString } from '@/common/decorators/is-decimal.decorator';
+import { Transform } from 'class-transformer';
 import {
   IsNotEmpty,
   IsString,
@@ -16,9 +18,15 @@ export class CreateProductDto {
   @IsOptional()
   description?: string;
 
-  @IsNumber()
-  @Min(0)
+  @IsDecimalString()
+  @Transform(({value}) => {
+    if (typeof value === 'number') {
+      return value.toFixed(2);
+    }
+    return value;
+  })
   price: string;
+
 
   @IsNumber()
   @Min(0)
