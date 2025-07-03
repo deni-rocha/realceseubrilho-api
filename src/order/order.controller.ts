@@ -20,7 +20,30 @@ export class OrderController {
   async createOrderFromCart(
     @Body() createOrderFromCartDto: CreateOrderFromCartDto,
   ) {
-    return this.orderService.createOrderFromCart(createOrderFromCartDto);
+    const order =
+      await this.orderService.createOrderFromCart(createOrderFromCartDto);
+
+    const contactNumber = process.env.WHATSAPP_CONTACT_NUMBER;
+    if (!contactNumber) {
+      throw new Error('Número de contato do WhatsApp não configurado no servidor.');
+    }
+
+    const totalAmountFormatted = new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    }).format(order.totalAmount);
+
+    const message = `Olá! Gostaria de finalizar meu pedido Nº ${order.id}. Valor total: ${totalAmountFormatted}.`;
+    
+    const whatsappUrl = `https://wa.me/${contactNumber}?text=${encodeURIComponent(
+      message,
+    )}`;
+
+    return {
+      message: 'Pedido criado com sucesso! Redirecionando para o WhatsApp.',
+      whatsappUrl,
+      orderDetails: order, // Opcional: retornar os detalhes do pedido também
+    };
   }
 
   @Get()

@@ -20,8 +20,6 @@ export class OrderService {
   constructor(
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
-    @InjectRepository(OrderItem)
-    private readonly orderItemRepository: Repository<OrderItem>,
     private readonly usersService: UsersService,
     private readonly productService: ProductService,
     private readonly shoppingCartService: ShoppingCartService,
@@ -31,7 +29,7 @@ export class OrderService {
   async createOrderFromCart(
     createOrderFromCartDto: CreateOrderFromCartDto,
   ): Promise<Order> {
-    const { userId, shippingAddress, paymentMethod } = createOrderFromCartDto;
+    const { userId } = createOrderFromCartDto;
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -91,8 +89,8 @@ export class OrderService {
       newOrder.orderDate = new Date();
       newOrder.status = OrderStatus.PENDING;
       newOrder.totalAmount = parseFloat(totalAmount.toFixed(2));
-      newOrder.shippingAddress = shippingAddress;
-      newOrder.paymentMethod = paymentMethod;
+      newOrder.shippingAddress = 'A combinar via WhatsApp';
+      newOrder.paymentMethod = 'WHATSAPP';
       newOrder.orderItems = orderItems;
 
       const savedOrder = await queryRunner.manager.save(Order, newOrder);
