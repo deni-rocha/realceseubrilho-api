@@ -1,5 +1,6 @@
 import { Order } from '@/order/entities/order.entity';
 import { Product } from '@/product/entities/product.entity';
+import { Exclude } from 'class-transformer';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -46,6 +47,7 @@ export class OrderItem extends BaseEntity {
   })
   updatedAt: Date;
 
+  @Exclude()
   @ManyToOne(() => Order, (order) => order.orderItems, {
     nullable: false,
     onDelete: 'CASCADE',
