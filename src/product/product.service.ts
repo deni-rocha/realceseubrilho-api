@@ -9,6 +9,7 @@ import { Decimal } from 'decimal.js';
 
 @Injectable()
 export class ProductService {
+
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
@@ -43,6 +44,7 @@ export class ProductService {
     return this.productRepository.find({ relations: ['category'] });
   }
 
+  
   async findOne(id: string): Promise<Product> {
     const product = await this.productRepository.findOne({
       where: { id },
