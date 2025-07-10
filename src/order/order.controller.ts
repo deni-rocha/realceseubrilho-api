@@ -11,6 +11,8 @@ import {
 import { OrderService } from './order.service';
 import { UpdateOrderStatusDto } from './dto/update-order-satus.dto';
 import { CreateOrderFromCartDto } from './dto/create-order-from-cart.dto';
+import { UserRole } from '@/role/role.enum';
+import { Roles } from '@/auth/decorators/roles.decorator';
 
 @Controller('orders')
 export class OrderController {
@@ -57,6 +59,7 @@ export class OrderController {
   }
 
   @Patch(':id/status')
+  @Roles(UserRole.ADMIN)
   async updateStatus(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdateOrderStatusDto,
@@ -65,6 +68,7 @@ export class OrderController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMIN)
   async remove(@Param('id', new ParseUUIDPipe()) id: string) {
     await this.orderService.remove(id);
     return { message: 'Pedido removido com sucesso.' };

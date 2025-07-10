@@ -31,11 +31,13 @@ export class UsersController {
   }
 
   @Get(':id')
+  @Roles(UserRole.ADMIN, UserRole.CUSTOMER)
   async findOne(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.usersService.findOne(id);
   }
 
   @Patch(':id')
+  @Roles(UserRole.ADMIN, UserRole.CUSTOMER)
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -44,6 +46,7 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMIN)
   async remove(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.usersService.remove(id);
   }
