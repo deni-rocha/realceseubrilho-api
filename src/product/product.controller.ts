@@ -17,6 +17,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from '@/cloudinary/cloudinary.service';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { Roles } from '@/auth/decorators/roles.decorator';
+import { UserRole } from '@/role/role.enum';
 
 @Controller('products')
 export class ProductController {
@@ -25,13 +27,14 @@ export class ProductController {
     private readonly cloudinaryService: CloudinaryService
   ) {}
 
-  
   @Post()
+  @Roles(UserRole.ADMIN)
   async create(@Body() createProductDto: CreateProductDto) {
     return this.productService.create(createProductDto);
   }
   
   @Post(':id/image')
+  @Roles(UserRole.ADMIN)
   @UseInterceptors(FileInterceptor('file', {
     storage: diskStorage({
       destination: './uploads',
@@ -61,6 +64,7 @@ export class ProductController {
   }
 
   @Patch(':id')
+  @Roles(UserRole.ADMIN)
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() updateProductDto: UpdateProductDto,
@@ -69,12 +73,14 @@ export class ProductController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMIN)
   async remove(@Param('id', new ParseUUIDPipe()) id: string) {
     await this.productService.remove(id);
     return { message: 'Produto removido com sucesso.' };
   }
 
   @Patch(':id/stock')
+  @Roles(UserRole.ADMIN)
   async updateStock(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body('quantity') quantity: number,
