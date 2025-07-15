@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { DataSource } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { UsersService } from '@/users/users.service';
 import { EmailService } from '@/email/email.service';
 import { EmailVerificationService } from '@/email/email-verification.service';
@@ -15,6 +15,12 @@ import { RegisterDto } from './dto/register.dto';
 import { RequestEmailVerificationDto } from '@/email/dto/request-email.verification.dto';
 import { VerifyEmailDto } from '@/email/dto/verify-email.dto';
 import * as bcrypt from 'bcrypt';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { PasswordResetToken } from './entities/password-reset-token.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { v4 as uuidv4 } from 'uuid';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -22,8 +28,11 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
+    @InjectRepository(PasswordResetToken)
+    private readonly passwordResetTokenRepository: Repository<PasswordResetToken>,
     private readonly emailVerificationService: EmailVerificationService,
     private readonly dataSource: DataSource,
+    private readonly configService: ConfigService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
@@ -193,5 +202,47 @@ export class AuthService {
 
     // Enviar e-mail
     await this.emailService.sendVerificationEmail(email, name, verificationToken.token);
+  }
+
+  async forgotPassword(dto: ForgotPasswordDto) {
+    const user = await this.usersService.findByEmail(dto.email);
+    // Sempre retorna resposta genérica para evitar enumeração de e-mails
+    if (!user) {
+      return { message: 'Se o e-mail existe, você receberá um e-mail para resetar sua senha.' };
+    }
+
+    const token = uuidv4();
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
+
+    await this.passwordResetTokenRepository.save({
+      user,
+      token,
+      expiresAt,
+      used: false,
+    });
+
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL');
+    const resetLink = `${frontendUrl}/reset-password?token=${token}`;
+    await this.emailService.sendPasswordResetEmail(user.email, user.name, token);
+    // Retorna resposta genérica
+    return { message: 'Se o e-mail existe, você receberá um e-mail para resetar sua senha.' };
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {
+    const resetToken = await this.passwordResetTokenRepository.findOne({
+      where: { token: dto.token },
+      relations: ['user'],
+    });
+
+    if (!resetToken || resetToken.used || resetToken.expiresAt < new Date()) {
+      throw new BadRequestException('Token inválido ou expirado.');
+    }
+
+    const hashedPassword = await bcrypt.hash(dto.newPassword, 10);
+    // Atualiza a senha do usuário usando o service
+    await this.usersService.update(resetToken.user.id, { password: hashedPassword });
+    // Marca o token como usado
+    resetToken.used = true;
+    await this.passwordResetTokenRepository.save(resetToken);
   }
 }

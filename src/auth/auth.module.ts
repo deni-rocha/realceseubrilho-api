@@ -12,13 +12,14 @@ import { EmailVerificationToken } from '@/email/entities/email-verification-toke
 import { UsersModule } from '@/users/users.module';
 import { EmailModule } from '@/email/email.module';
 import { JWT_SECRET } from './constants/jwt.constants';
+import { PasswordResetToken } from './entities/password-reset-token.entity';
 
 @Module({
   imports: [
     UsersModule,
     EmailModule,
     PassportModule,
-    TypeOrmModule.forFeature([User, Role, EmailVerificationToken]),
+    TypeOrmModule.forFeature([User, Role, EmailVerificationToken, PasswordResetToken]),
     JwtModule.register({
       secret: JWT_SECRET,
       signOptions: { expiresIn: '24h' },
