@@ -42,7 +42,7 @@ services:
     - SMTP_HOST=smtp.gmail.com
     - SMTP_PORT=587
     - SMTP_USER=frevolink@gmail.com
-    - SMTP_PASS=kchh eclr uqyq cqdp
+    - SMTP_PASS=thgw nmyb dhen usrl
     - FRONTEND_URL=http://localhost:3000
     - SUPPORT_EMAIL=frevolink@gmail.com
 volumes:
