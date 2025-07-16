@@ -9,6 +9,7 @@ import {
   ParseUUIDPipe,
   UseInterceptors,
   UploadedFile,
+  UseGuards,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -19,6 +20,8 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { Roles } from '@/auth/decorators/roles.decorator';
 import { UserRole } from '@/role/role.enum';
+import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
+import { RolesGuard } from '@/auth/guards/roles.guard';
 
 @Controller('products')
 export class ProductController {
@@ -27,13 +30,14 @@ export class ProductController {
     private readonly cloudinaryService: CloudinaryService
   ) {}
 
-  @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
+  @Post()
   async create(@Body() createProductDto: CreateProductDto) {
     return this.productService.create(createProductDto);
   }
   
-  @Post(':id/image')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @UseInterceptors(FileInterceptor('file', {
     storage: diskStorage({
@@ -44,6 +48,7 @@ export class ProductController {
       },
     }),
   }))
+  @Post(':id/image')
   async uploadImage(
     @Param('id', new ParseUUIDPipe()) id: string,
     @UploadedFile() file: Express.Multer.File,
@@ -53,18 +58,23 @@ export class ProductController {
     return { imageUrl };
   }
   
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
   @Get()
   async findAll() {
     return this.productService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
   @Get(':id')
   async findOne(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.productService.findOne(id);
   }
 
-  @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
+  @Patch(':id')
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() updateProductDto: UpdateProductDto,
@@ -72,15 +82,17 @@ export class ProductController {
     return this.productService.update(id, updateProductDto);
   }
 
-  @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
+  @Delete(':id')
   async remove(@Param('id', new ParseUUIDPipe()) id: string) {
     await this.productService.remove(id);
     return { message: 'Produto removido com sucesso.' };
   }
 
-  @Patch(':id/stock')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
+  @Patch(':id/stock')
   async updateStock(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body('quantity') quantity: number,

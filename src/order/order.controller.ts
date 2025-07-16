@@ -13,10 +13,14 @@ import { UpdateOrderStatusDto } from './dto/update-order-satus.dto';
 import { CreateOrderFromCartDto } from './dto/create-order-from-cart.dto';
 import { UserRole } from '@/role/role.enum';
 import { Roles } from '@/auth/decorators/roles.decorator';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('orders')
 export class OrderController {
-  constructor(private readonly orderService: OrderService) {}
+  constructor(
+    private readonly orderService: OrderService,
+    private readonly nestConfigService: ConfigService
+  ) {}
 
   @Post()
   async createOrderFromCart(
@@ -25,7 +29,7 @@ export class OrderController {
     const order =
       await this.orderService.createOrderFromCart(createOrderFromCartDto);
 
-    const contactNumber = process.env.WHATSAPP_CONTACT_NUMBER;
+    const contactNumber = this.nestConfigService.get<string>('WHATSAPP_CONTACT_NUMBER');
     if (!contactNumber) {
       throw new Error('Número de contato do WhatsApp não configurado no servidor.');
     }
