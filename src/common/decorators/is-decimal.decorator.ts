@@ -1,5 +1,9 @@
 // src/common/decorators/is-decimal.decorator.ts
-import { registerDecorator, ValidationOptions, ValidationArguments } from 'class-validator';
+import {
+  registerDecorator,
+  ValidationOptions,
+  ValidationArguments,
+} from 'class-validator';
 import { Decimal } from 'decimal.js';
 
 export function IsDecimalString(validationOptions?: ValidationOptions) {

@@ -37,16 +37,31 @@ export class EmailService {
     }
   }
 
-  private async loadTemplate(templateName: string): Promise<HandlebarsTemplateDelegate> {
+  private async loadTemplate(
+    templateName: string,
+  ): Promise<HandlebarsTemplateDelegate> {
     // Tentar diferentes caminhos possíveis
     const possiblePaths = [
       path.join(__dirname, 'templates', `${templateName}.hbs`),
-      path.join(process.cwd(), 'src', 'email', 'templates', `${templateName}.hbs`),
-      path.join(process.cwd(), 'dist', 'src', 'email', 'templates', `${templateName}.hbs`),
+      path.join(
+        process.cwd(),
+        'src',
+        'email',
+        'templates',
+        `${templateName}.hbs`,
+      ),
+      path.join(
+        process.cwd(),
+        'dist',
+        'src',
+        'email',
+        'templates',
+        `${templateName}.hbs`,
+      ),
     ];
 
     let templatePath: string | null = null;
-    
+
     for (const p of possiblePaths) {
       if (fs.existsSync(p)) {
         templatePath = p;
@@ -55,9 +70,11 @@ export class EmailService {
     }
 
     if (!templatePath) {
-      throw new Error(`Template ${templateName} não encontrado. Caminhos tentados: ${possiblePaths.join(', ')}`);
+      throw new Error(
+        `Template ${templateName} não encontrado. Caminhos tentados: ${possiblePaths.join(', ')}`,
+      );
     }
-    
+
     const templateContent = fs.readFileSync(templatePath, 'utf-8');
     return handlebars.compile(templateContent);
   }
@@ -66,7 +83,7 @@ export class EmailService {
     try {
       const template = await this.loadTemplate('verification-email');
       const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
-      
+
       const html = template({
         name,
         verificationUrl,
@@ -83,7 +100,7 @@ export class EmailService {
         headers: {
           'X-Priority': '1',
           'X-MSMail-Priority': 'High',
-          'Importance': 'high',
+          Importance: 'high',
         },
       };
 
@@ -100,7 +117,7 @@ export class EmailService {
     try {
       const template = await this.loadTemplate('password-reset');
       const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
-      
+
       const html = template({
         name,
         resetUrl,
@@ -116,7 +133,7 @@ export class EmailService {
         headers: {
           'X-Priority': '1',
           'X-MSMail-Priority': 'High',
-          'Importance': 'high',
+          Importance: 'high',
         },
       };
 
@@ -124,7 +141,10 @@ export class EmailService {
       this.logger.log(`✅ E-mail de redefinição enviado para ${email}`);
       return result;
     } catch (error) {
-      this.logger.error(`❌ Erro ao enviar e-mail de redefinição para ${email}:`, error);
+      this.logger.error(
+        `❌ Erro ao enviar e-mail de redefinição para ${email}:`,
+        error,
+      );
       throw new Error('Falha ao enviar e-mail de redefinição');
     }
   }

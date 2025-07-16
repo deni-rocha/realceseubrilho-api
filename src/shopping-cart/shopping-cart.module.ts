@@ -9,10 +9,7 @@ import { ProductModule } from '@/product/product.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      ShoppingCart,
-      CartItem,
-    ]),
+    TypeOrmModule.forFeature([ShoppingCart, CartItem]),
     UsersModule,
     ProductModule,
   ],

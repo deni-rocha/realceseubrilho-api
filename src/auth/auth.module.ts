@@ -19,7 +19,12 @@ import { PasswordResetToken } from './entities/password-reset-token.entity';
     UsersModule,
     EmailModule,
     PassportModule,
-    TypeOrmModule.forFeature([User, Role, EmailVerificationToken, PasswordResetToken]),
+    TypeOrmModule.forFeature([
+      User,
+      Role,
+      EmailVerificationToken,
+      PasswordResetToken,
+    ]),
     JwtModule.register({
       secret: JWT_SECRET,
       signOptions: { expiresIn: '24h' },

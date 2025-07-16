@@ -29,7 +29,7 @@ export class ChangeAdminPasswordService {
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     admin.password = hashedPassword;
-    
+
     await this.userRepository.save(admin);
     this.logger.log(`Senha do admin ${adminEmail} alterada com sucesso!`);
   }

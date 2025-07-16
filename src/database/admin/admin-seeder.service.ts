@@ -28,7 +28,9 @@ export class AdminSeederService implements OnModuleInit {
     });
 
     if (!adminRole) {
-      this.logger.error('Role ADMIN não encontrada. Execute o seeder de roles primeiro.');
+      this.logger.error(
+        'Role ADMIN não encontrada. Execute o seeder de roles primeiro.',
+      );
       return;
     }
 
@@ -62,6 +64,8 @@ export class AdminSeederService implements OnModuleInit {
     this.logger.log('✅ Admin padrão criado com sucesso!');
     this.logger.log(`📧 Email: ${adminEmail}`);
     this.logger.log(`🔑 Senha: ${adminPassword}`);
-    this.logger.warn('⚠️  IMPORTANTE: Altere a senha do admin após o primeiro login!');
+    this.logger.warn(
+      '⚠️  IMPORTANTE: Altere a senha do admin após o primeiro login!',
+    );
   }
 }

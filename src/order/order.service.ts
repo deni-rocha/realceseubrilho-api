@@ -24,7 +24,7 @@ export class OrderService {
     private readonly productService: ProductService,
     private readonly shoppingCartService: ShoppingCartService,
     private dataSource: DataSource,
-  ) { }
+  ) {}
 
   async createOrderFromCart(
     createOrderFromCartDto: CreateOrderFromCartDto,

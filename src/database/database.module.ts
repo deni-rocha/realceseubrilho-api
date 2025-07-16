@@ -8,7 +8,16 @@ import { ChangeAdminPasswordService } from './admin/change-admin-password.servic
 
 @Module({
   imports: [TypeOrmModule.forFeature([Role, User])],
-  providers: [RoleSeederService, AdminSeederService, ChangeAdminPasswordService],
-  exports: [TypeOrmModule.forFeature([Role, User]), RoleSeederService, AdminSeederService, ChangeAdminPasswordService],
+  providers: [
+    RoleSeederService,
+    AdminSeederService,
+    ChangeAdminPasswordService,
+  ],
+  exports: [
+    TypeOrmModule.forFeature([Role, User]),
+    RoleSeederService,
+    AdminSeederService,
+    ChangeAdminPasswordService,
+  ],
 })
 export class DatabaseModule {}

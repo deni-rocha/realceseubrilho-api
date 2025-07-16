@@ -19,19 +19,24 @@ import { ConfigService } from '@nestjs/config';
 export class OrderController {
   constructor(
     private readonly orderService: OrderService,
-    private readonly nestConfigService: ConfigService
+    private readonly nestConfigService: ConfigService,
   ) {}
 
   @Post()
   async createOrderFromCart(
     @Body() createOrderFromCartDto: CreateOrderFromCartDto,
   ) {
-    const order =
-      await this.orderService.createOrderFromCart(createOrderFromCartDto);
+    const order = await this.orderService.createOrderFromCart(
+      createOrderFromCartDto,
+    );
 
-    const contactNumber = this.nestConfigService.get<string>('WHATSAPP_CONTACT_NUMBER');
+    const contactNumber = this.nestConfigService.get<string>(
+      'WHATSAPP_CONTACT_NUMBER',
+    );
     if (!contactNumber) {
-      throw new Error('Número de contato do WhatsApp não configurado no servidor.');
+      throw new Error(
+        'Número de contato do WhatsApp não configurado no servidor.',
+      );
     }
 
     const totalAmountFormatted = new Intl.NumberFormat('pt-BR', {
@@ -40,7 +45,7 @@ export class OrderController {
     }).format(order.totalAmount);
 
     const message = `Olá! Gostaria de finalizar meu pedido Nº ${order.id}. Valor total: ${totalAmountFormatted}.`;
-    
+
     const whatsappUrl = `https://wa.me/${contactNumber}?text=${encodeURIComponent(
       message,
     )}`;

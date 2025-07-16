@@ -24,7 +24,9 @@ export class AuthController {
   }
 
   @Post('request-email-verification')
-  async requestEmailVerification(@Body() requestDto: RequestEmailVerificationDto) {
+  async requestEmailVerification(
+    @Body() requestDto: RequestEmailVerificationDto,
+  ) {
     return this.authService.requestEmailVerification(requestDto);
   }
 

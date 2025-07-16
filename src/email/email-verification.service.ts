@@ -15,7 +15,7 @@ export class EmailVerificationService {
     // Invalidar tokens anteriores
     await this.emailVerificationTokenRepository.update(
       { user: { id: userId }, used: false },
-      { used: true }
+      { used: true },
     );
 
     // Gerar novo token
@@ -42,7 +42,7 @@ export class EmailVerificationService {
   async markTokenAsUsed(tokenId: string): Promise<void> {
     await this.emailVerificationTokenRepository.update(
       { id: tokenId },
-      { used: true }
+      { used: true },
     );
   }
 
@@ -53,12 +53,15 @@ export class EmailVerificationService {
     });
   }
 
-  async createTokenWithTransaction(userId: string, queryRunner: QueryRunner): Promise<EmailVerificationToken> {
+  async createTokenWithTransaction(
+    userId: string,
+    queryRunner: QueryRunner,
+  ): Promise<EmailVerificationToken> {
     // Invalidar tokens anteriores usando o queryRunner
     await queryRunner.manager.update(
       EmailVerificationToken,
       { user: { id: userId }, used: false },
-      { used: true }
+      { used: true },
     );
 
     // Gerar novo token
@@ -66,12 +69,18 @@ export class EmailVerificationService {
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 24);
 
-    const verificationToken = queryRunner.manager.create(EmailVerificationToken, {
-      token,
-      expiresAt,
-      user: { id: userId },
-    });
+    const verificationToken = queryRunner.manager.create(
+      EmailVerificationToken,
+      {
+        token,
+        expiresAt,
+        user: { id: userId },
+      },
+    );
 
-    return await queryRunner.manager.save(EmailVerificationToken, verificationToken);
+    return await queryRunner.manager.save(
+      EmailVerificationToken,
+      verificationToken,
+    );
   }
-} 
+}

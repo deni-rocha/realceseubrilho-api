@@ -5,9 +5,7 @@ import { EmailVerificationService } from './email-verification.service';
 import { EmailVerificationToken } from './entities/email-verification-token.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([EmailVerificationToken]),
-  ],
+  imports: [TypeOrmModule.forFeature([EmailVerificationToken])],
   providers: [EmailService, EmailVerificationService],
   exports: [EmailService, EmailVerificationService],
 })

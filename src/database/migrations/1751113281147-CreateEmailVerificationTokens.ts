@@ -1,6 +1,8 @@
 import { MigrationInterface, QueryRunner, Table, ForeignKey } from 'typeorm';
 
-export class CreateEmailVerificationTokens1751113281147 implements MigrationInterface {
+export class CreateEmailVerificationTokens1751113281147
+  implements MigrationInterface
+{
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
 
@@ -58,4 +60,4 @@ export class CreateEmailVerificationTokens1751113281147 implements MigrationInte
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.dropTable('email_verification_tokens');
   }
-} 
+}

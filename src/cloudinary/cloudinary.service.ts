@@ -24,8 +24,13 @@ export class CloudinaryService {
     };
   }
 
-  async uploadImage(productId: string, file: Express.Multer.File): Promise<string> {
-    const product = await this.productRepository.findOne({ where: { id: productId } });
+  async uploadImage(
+    productId: string,
+    file: Express.Multer.File,
+  ): Promise<string> {
+    const product = await this.productRepository.findOne({
+      where: { id: productId },
+    });
     if (!product) throw new NotFoundException('Produto não encontrado');
 
     // Upload para o Cloudinary
@@ -44,5 +49,4 @@ export class CloudinaryService {
 
     return result.secure_url;
   }
-  
 }

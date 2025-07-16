@@ -25,7 +25,7 @@ export class UsersService {
   // 🔧 Método base para evitar repetição
   private async findUserWithRelations(
     where: any,
-    includePassword: boolean = false
+    includePassword: boolean = false,
   ) {
     const select: any = {
       id: true,
@@ -63,7 +63,6 @@ export class UsersService {
     if (!role) {
       throw new BadRequestException('Role não encontrada');
     }
-
 
     const existingUser = await this.usersRepository.findOne({
       where: { email: createUserDto.email },
@@ -115,7 +114,7 @@ export class UsersService {
   findByEmail(email: string) {
     return this.findUserWithRelations({ email }, true); // true = incluir password
   }
-  
+
   async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.usersRepository.findOne({
       where: { id: id },
@@ -173,7 +172,10 @@ export class UsersService {
     return { message: 'Usuário verificado com sucesso' };
   }
 
-  async createWithTransaction(createUserDto: CreateUserDto, queryRunner: QueryRunner) {
+  async createWithTransaction(
+    createUserDto: CreateUserDto,
+    queryRunner: QueryRunner,
+  ) {
     if (!createUserDto.role) {
       createUserDto.role = 'CUSTOMER';
     }

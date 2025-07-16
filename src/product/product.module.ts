@@ -7,7 +7,10 @@ import { ProductCategory } from '@/product-category/entities/product-category.en
 import { CloudinaryModule } from '@/cloudinary/cloudinary.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Product, ProductCategory]), CloudinaryModule],
+  imports: [
+    TypeOrmModule.forFeature([Product, ProductCategory]),
+    CloudinaryModule,
+  ],
   controllers: [ProductController],
   providers: [ProductService],
   exports: [ProductService],

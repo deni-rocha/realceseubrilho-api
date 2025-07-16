@@ -27,7 +27,7 @@ import { RolesGuard } from '@/auth/guards/roles.guard';
 export class ProductController {
   constructor(
     private readonly productService: ProductService,
-    private readonly cloudinaryService: CloudinaryService
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -36,28 +36,30 @@ export class ProductController {
   async create(@Body() createProductDto: CreateProductDto) {
     return this.productService.create(createProductDto);
   }
-  
+
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage({
-      destination: './uploads',
-      filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, uniqueSuffix + extname(file.originalname));
-      },
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) => {
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, uniqueSuffix + extname(file.originalname));
+        },
+      }),
     }),
-  }))
+  )
   @Post(':id/image')
   async uploadImage(
     @Param('id', new ParseUUIDPipe()) id: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    
     const imageUrl = await this.cloudinaryService.uploadImage(id, file);
     return { imageUrl };
   }
-  
+
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @Get()

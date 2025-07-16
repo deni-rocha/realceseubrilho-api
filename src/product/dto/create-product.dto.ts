@@ -19,14 +19,13 @@ export class CreateProductDto {
   description?: string;
 
   @IsDecimalString()
-  @Transform(({value}) => {
+  @Transform(({ value }) => {
     if (typeof value === 'number') {
       return value.toFixed(2);
     }
     return value;
   })
   price: string;
-
 
   @IsNumber()
   @Min(0)

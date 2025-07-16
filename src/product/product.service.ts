@@ -9,7 +9,6 @@ import { Decimal } from 'decimal.js';
 
 @Injectable()
 export class ProductService {
-
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
@@ -35,7 +34,9 @@ export class ProductService {
     const price = new Decimal(productData.price).toFixed(2);
 
     const newProduct = this.productRepository.create(
-      category ? { ...productData, category, price } : { ...productData, price },
+      category
+        ? { ...productData, category, price }
+        : { ...productData, price },
     );
     return this.productRepository.save(newProduct);
   }
@@ -44,7 +45,6 @@ export class ProductService {
     return this.productRepository.find({ relations: ['category'] });
   }
 
-  
   async findOne(id: string): Promise<Product> {
     const product = await this.productRepository.findOne({
       where: { id },
@@ -96,8 +96,10 @@ export class ProductService {
   }
 
   async calculateTotal(products: Product[]): Promise<string> {
-    return products.reduce((total, product) => {
-      return total.plus(new Decimal(product.price));
-    }, new Decimal(0)).toFixed(2);
+    return products
+      .reduce((total, product) => {
+        return total.plus(new Decimal(product.price));
+      }, new Decimal(0))
+      .toFixed(2);
   }
 }

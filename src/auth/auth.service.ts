@@ -37,7 +37,7 @@ export class AuthService {
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
-    
+
     if (user && (await bcrypt.compare(password, user.password))) {
       const { password, ...result } = user;
       return result;
@@ -47,15 +47,15 @@ export class AuthService {
 
   async login(loginDto: LoginDto) {
     const user = await this.validateUser(loginDto.email, loginDto.password);
-    
+
     if (!user) {
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
-    const payload = { 
-      email: user.email, 
-      sub: user.id, 
-      role: user.role.name 
+    const payload = {
+      email: user.email,
+      sub: user.id,
+      role: user.role.name,
     };
 
     return {
@@ -80,29 +80,30 @@ export class AuthService {
       // 1. Criar usuário
       const user = await this.usersService.createWithTransaction(
         registerDto,
-        queryRunner
+        queryRunner,
       );
 
       // 2. Gerar token de verificação
-      const verificationToken = await this.emailVerificationService.createTokenWithTransaction(
-        user.id,
-        queryRunner
-      );
+      const verificationToken =
+        await this.emailVerificationService.createTokenWithTransaction(
+          user.id,
+          queryRunner,
+        );
 
       // 3. Enviar e-mail (se falhar, a transação será revertida)
       await this.emailService.sendVerificationEmail(
         user.email,
         user.name,
-        verificationToken.token
+        verificationToken.token,
       );
 
       // 4. Se tudo der certo, commit da transação
       await queryRunner.commitTransaction();
 
-      const payload = { 
-        email: user.email, 
-        sub: user.id, 
-        role: 'CUSTOMER'
+      const payload = {
+        email: user.email,
+        sub: user.id,
+        role: 'CUSTOMER',
       };
 
       return {
@@ -114,21 +115,20 @@ export class AuthService {
           verified: false,
         },
         access_token: this.jwtService.sign(payload),
-        message: 'Conta criada com sucesso! Verifique seu e-mail para ativar sua conta.',
+        message:
+          'Conta criada com sucesso! Verifique seu e-mail para ativar sua conta.',
       };
-
     } catch (error) {
       // 5. Se algo der errado, rollback da transação
       await queryRunner.rollbackTransaction();
-      
+
       if (error instanceof ConflictException) {
         throw new ConflictException('Email já cadastrado');
       }
-      
+
       // Log do erro para debugging
       console.error('Erro no registro:', error);
       throw new Error('Falha ao criar conta. Tente novamente.');
-      
     } finally {
       // 6. Sempre liberar o queryRunner
       await queryRunner.release();
@@ -137,7 +137,7 @@ export class AuthService {
 
   async requestEmailVerification(requestDto: RequestEmailVerificationDto) {
     const user = await this.usersService.findByEmail(requestDto.email);
-    
+
     if (!user) {
       throw new NotFoundException('Usuário não encontrado');
     }
@@ -154,7 +154,9 @@ export class AuthService {
   }
 
   async verifyEmail(verifyDto: VerifyEmailDto) {
-    const token = await this.emailVerificationService.findToken(verifyDto.token);
+    const token = await this.emailVerificationService.findToken(
+      verifyDto.token,
+    );
 
     if (!token) {
       throw new BadRequestException('Token inválido');
@@ -196,19 +198,31 @@ export class AuthService {
     }
   }
 
-  private async generateAndSendVerificationToken(userId: string, email: string, name: string) {
+  private async generateAndSendVerificationToken(
+    userId: string,
+    email: string,
+    name: string,
+  ) {
     // Criar token usando o serviço
-    const verificationToken = await this.emailVerificationService.createToken(userId);
+    const verificationToken =
+      await this.emailVerificationService.createToken(userId);
 
     // Enviar e-mail
-    await this.emailService.sendVerificationEmail(email, name, verificationToken.token);
+    await this.emailService.sendVerificationEmail(
+      email,
+      name,
+      verificationToken.token,
+    );
   }
 
   async forgotPassword(dto: ForgotPasswordDto) {
     const user = await this.usersService.findByEmail(dto.email);
     // Sempre retorna resposta genérica para evitar enumeração de e-mails
     if (!user) {
-      return { message: 'Se o e-mail existe, você receberá um e-mail para resetar sua senha.' };
+      return {
+        message:
+          'Se o e-mail existe, você receberá um e-mail para resetar sua senha.',
+      };
     }
 
     const token = uuidv4();
@@ -223,9 +237,16 @@ export class AuthService {
 
     const frontendUrl = this.configService.get<string>('FRONTEND_URL');
     const resetLink = `${frontendUrl}/reset-password?token=${token}`;
-    await this.emailService.sendPasswordResetEmail(user.email, user.name, token);
+    await this.emailService.sendPasswordResetEmail(
+      user.email,
+      user.name,
+      token,
+    );
     // Retorna resposta genérica
-    return { message: 'Se o e-mail existe, você receberá um e-mail para resetar sua senha.' };
+    return {
+      message:
+        'Se o e-mail existe, você receberá um e-mail para resetar sua senha.',
+    };
   }
 
   async resetPassword(dto: ResetPasswordDto) {
@@ -240,7 +261,9 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(dto.newPassword, 10);
     // Atualiza a senha do usuário usando o service
-    await this.usersService.update(resetToken.user.id, { password: hashedPassword });
+    await this.usersService.update(resetToken.user.id, {
+      password: hashedPassword,
+    });
     // Marca o token como usado
     resetToken.used = true;
     await this.passwordResetTokenRepository.save(resetToken);

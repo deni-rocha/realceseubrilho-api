@@ -9,6 +9,6 @@ import { OrderModule } from '@/order/order.module';
 @Module({
   imports: [TypeOrmModule.forFeature([Payment, Order]), OrderModule],
   controllers: [PaymentController],
-  providers: [PaymentService]
+  providers: [PaymentService],
 })
 export class PaymentModule {}
