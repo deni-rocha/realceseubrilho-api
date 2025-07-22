@@ -4,13 +4,21 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
+const isProduction = process.env.NODE_ENV === 'production';
+const isDevelopment = process.env.NODE_ENV === 'development';
+
+console.log(`Ambiente atual: ${process.env.NODE_ENV}`);
+if (isProduction) {
+  console.log('Rodando em produção');
+} else if (isDevelopment) {
+  console.log('Rodando em desenvolvimento');
+} else {
+  console.log('Ambiente não identificado');
+}
+
 export default new DataSource({
   type: 'postgres',
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT || '5432', 10),
-  username: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
+  url: isProduction ? process.env.DIRECT_URL : process.env.DEV_DATABASE_URL,
   entities: [
    __dirname + '/src/**/*.entity{.ts,.js}',
   ],

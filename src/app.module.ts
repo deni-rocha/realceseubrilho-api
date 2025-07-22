@@ -13,6 +13,7 @@ import { AuthModule } from './auth/auth.module';
 import { EmailModule } from './email/email.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -21,18 +22,18 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService) => {
+        // Verifica se é ambiente de desenvolvimento
+        const isProduction = configService.get<string>('NODE_ENV') === 'production';
+
+        return {
         type: 'postgres',
-        host: configService.get<string>('DB_HOST'),
-        port: configService.get<number>('DB_PORT'),
-        username: configService.get<string>('DB_USERNAME'),
-        password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_DATABASE'),
+        url: isProduction ? configService.get<string>('POOL_DATABASE_URL') : configService.get<string>('DEV_DATABASE_URL'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: false,
         migrations: [__dirname + '/../src/database/migrations/*.{ts,js}'],
         migrationsRun: false,
-      }),
+      }},
       inject: [ConfigService],
     }),
     DatabaseModule,

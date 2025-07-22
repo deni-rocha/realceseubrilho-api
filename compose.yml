@@ -26,14 +26,10 @@ services:
     networks:
       - api-network
     environment:
-    - DB_HOST=db
-    - DB_PORT=5432
-    - DB_USERNAME=frevolink
-    - DB_PASSWORD=flpassword
-    - DB_DATABASE=realcestore
+    - NODE_ENV=development
+    - DEV_DATABASE_URL=postgres://frevolink:flpassword@db:5432/realcestore
     - JWT_SECRET=p0V1X2a8b$#nD!9LqTz@7RmF^YwK&3Jh
     - PORT=3000
-    - NODE_ENV=production
     # Admin padrão
     - ADMIN_EMAIL=admin@realceseubrilho.com
     - ADMIN_PASSWORD=admin123

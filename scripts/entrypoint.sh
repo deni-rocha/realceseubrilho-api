@@ -4,4 +4,4 @@
 npx typeorm migration:run --dataSource /app/dist/ormconfig.js
 
 # Sobe a aplicação
-npm run start:prod
+node /app/dist/src/main

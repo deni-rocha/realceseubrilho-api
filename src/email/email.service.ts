@@ -53,7 +53,6 @@ export class EmailService {
       path.join(
         process.cwd(),
         'dist',
-        'src',
         'email',
         'templates',
         `${templateName}.hbs`,
