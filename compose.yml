@@ -25,22 +25,9 @@ services:
       - '3000:3000'
     networks:
       - api-network
-    environment:
-    - NODE_ENV=development
-    - DEV_DATABASE_URL=postgres://frevolink:flpassword@db:5432/realcestore
-    - JWT_SECRET=p0V1X2a8b$#nD!9LqTz@7RmF^YwK&3Jh
-    - PORT=3000
-    # Admin padrão
-    - ADMIN_EMAIL=admin@realceseubrilho.com
-    - ADMIN_PASSWORD=admin123
-    - ADMIN_NAME=Administrador do Sistema
-     # Configurações de Email
-    - SMTP_HOST=smtp.gmail.com
-    - SMTP_PORT=587
-    - SMTP_USER=frevolink@gmail.com
-    - SMTP_PASS=thgw nmyb dhen usrl
-    - FRONTEND_URL=http://localhost:3000
-    - SUPPORT_EMAIL=frevolink@gmail.com
+    env_file:
+      - .env.development
+
 volumes:
   postgres_data:
     # Define o volume nomeado
