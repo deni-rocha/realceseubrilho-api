@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import {
   Injectable,
   UnauthorizedException,
@@ -21,6 +23,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
+import { RefreshToken } from './entities/refresh-token.entity';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Injectable()
 export class AuthService {
@@ -33,6 +37,8 @@ export class AuthService {
     private readonly emailVerificationService: EmailVerificationService,
     private readonly dataSource: DataSource,
     private readonly configService: ConfigService,
+    @InjectRepository(RefreshToken)
+    private readonly refreshTokenRepository: Repository<RefreshToken>,
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
@@ -52,11 +58,18 @@ export class AuthService {
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
-    const payload = {
-      email: user.email,
-      sub: user.id,
-      role: user.role.name,
-    };
+    const payload = { sub: user.id, email: user.email, role: user.role.name };
+    const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
+
+    const refreshToken = uuidv4();
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 dias
+
+    // Salve o refresh token no banco
+    await this.refreshTokenRepository.save({
+      user,
+      token: refreshToken,
+      expiresAt,
+    });
 
     return {
       user: {
@@ -66,8 +79,29 @@ export class AuthService {
         role: user.role.name,
         verified: user.verified,
       },
-      access_token: this.jwtService.sign(payload),
+      accessToken,
+      refreshToken,
     };
+  }
+
+  async refreshToken(dto: RefreshTokenDto) {
+    const token = await this.refreshTokenRepository.findOne({
+      where: { token: dto.refreshToken, revoked: false },
+      relations: ['user'],
+    });
+
+    if (!token || token.expiresAt < new Date()) {
+      throw new UnauthorizedException('Refresh token inválido ou expirado');
+    }
+
+    const payload = {
+      sub: token.user.id,
+      email: token.user.email,
+      role: token.user.role.name,
+    };
+    const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
+
+    return { accessToken };
   }
 
   async register(registerDto: RegisterDto) {
