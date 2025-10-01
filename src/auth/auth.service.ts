@@ -59,7 +59,7 @@ export class AuthService {
     }
 
     const payload = { sub: user.id, email: user.email, role: user.role.name };
-    const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
+    const accessToken = this.jwtService.sign(payload, { expiresIn: '1h' });
 
     const refreshToken = uuidv4();
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 dias
@@ -87,11 +87,15 @@ export class AuthService {
   async refreshToken(dto: RefreshTokenDto) {
     const token = await this.refreshTokenRepository.findOne({
       where: { token: dto.refreshToken, revoked: false },
-      relations: ['user'],
+      relations: ['user', 'user.role'],
     });
 
     if (!token || token.expiresAt < new Date()) {
       throw new UnauthorizedException('Refresh token inválido ou expirado');
+    }
+
+    if (!token.user.role) {
+      throw new UnauthorizedException('Usuário sem papel definido.');
     }
 
     const payload = {
@@ -99,7 +103,7 @@ export class AuthService {
       email: token.user.email,
       role: token.user.role.name,
     };
-    const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
+    const accessToken = this.jwtService.sign(payload, { expiresIn: '1h' });
 
     return { accessToken };
   }
