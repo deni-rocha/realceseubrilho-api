@@ -98,6 +98,18 @@ export class AuthService {
       throw new UnauthorizedException('Usuário sem papel definido.');
     }
 
+    token.revoked = true;
+    await this.refreshTokenRepository.save(token);
+
+    const newRefreshToken = uuidv4();
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 dias
+
+    await this.refreshTokenRepository.save({
+      user: token.user,
+      token: newRefreshToken,
+      expiresAt,
+    });
+
     const payload = {
       sub: token.user.id,
       email: token.user.email,
@@ -105,7 +117,7 @@ export class AuthService {
     };
     const accessToken = this.jwtService.sign(payload, { expiresIn: '1h' });
 
-    return { accessToken };
+    return { accessToken, refreshToken: newRefreshToken };
   }
 
   async register(registerDto: RegisterDto) {
