@@ -153,6 +153,10 @@ export class UsersService {
       throw new Error('Usuário não encontrado');
     }
 
+    if (user.email === 'admin@realceseubrilho.com') {
+      throw new Error('Não é possível deletar esse usuário');
+    }
+
     await this.usersRepository.remove(user);
     return { message: 'Usuário removido com sucesso' };
   }
