@@ -19,12 +19,8 @@ if (isProduction) {
 export default new DataSource({
   type: 'postgres',
   url: isProduction ? process.env.DIRECT_URL : process.env.DEV_DATABASE_URL,
-  entities: [
-   __dirname + '/src/**/*.entity{.ts,.js}',
-  ],
-  migrations: [
-    __dirname + '/src/database/migrations/*.{ts,js}',
-  ],
+  entities: [__dirname + '/src/**/*.entity{.ts,.js}'],
+  migrations: [__dirname + '/src/database/migrations/*.{ts,js}'],
   synchronize: false, // SEMPRE FALSE para o CLI e em produção!
   logging: ['query', 'error'],
 });

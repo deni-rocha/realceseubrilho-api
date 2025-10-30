@@ -7,6 +7,8 @@ import {
   IsNumber,
   IsUUID,
   Min,
+  IsArray,
+  IsUrl,
 } from 'class-validator';
 
 export class CreateProductDto {
@@ -23,7 +25,7 @@ export class CreateProductDto {
     if (typeof value === 'number') {
       return value.toFixed(2);
     }
-    return value;
+    return String(value);
   })
   price: string;
 
@@ -34,4 +36,9 @@ export class CreateProductDto {
   @IsUUID()
   @IsOptional()
   categoryId?: string;
+
+  @IsArray()
+  @IsUrl({}, { each: true })
+  @IsOptional()
+  imageUrls?: string[];
 }

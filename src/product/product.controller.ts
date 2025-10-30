@@ -9,12 +9,13 @@ import {
   ParseUUIDPipe,
   UseInterceptors,
   UploadedFile,
+  UploadedFiles,
   UseGuards,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from '@/cloudinary/cloudinary.service';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
@@ -58,6 +59,43 @@ export class ProductController {
   ) {
     const imageUrl = await this.cloudinaryService.uploadImage(id, file);
     return { imageUrl };
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @UseInterceptors(
+    FilesInterceptor('files', 10, {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) => {
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, uniqueSuffix + extname(file.originalname));
+        },
+      }),
+    }),
+  )
+  @Post(':id/images')
+  async uploadMultipleImages(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @UploadedFiles() files: Express.Multer.File[],
+  ) {
+    const imageUrls = await this.cloudinaryService.uploadMultipleImages(
+      id,
+      files,
+    );
+    return { imageUrls };
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @Delete(':id/image')
+  async deleteImage(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body('imageUrl') imageUrl: string,
+  ) {
+    await this.cloudinaryService.deleteImage(id, imageUrl);
+    return { message: 'Imagem removida com sucesso' };
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

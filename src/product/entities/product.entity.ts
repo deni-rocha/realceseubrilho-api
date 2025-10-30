@@ -28,8 +28,8 @@ export class Product extends BaseEntity {
   @Column({ type: 'int', nullable: false, default: 0 })
   stockQuantity: number;
 
-  @Column({ type: 'varchar', nullable: true })
-  imageUrl: string;
+  @Column({ type: 'text', array: true, default: [] })
+  imageUrls: string[];
 
   @Column({
     type: 'timestamp',
