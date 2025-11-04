@@ -11,6 +11,7 @@ import {
   UploadedFile,
   UploadedFiles,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -92,7 +93,7 @@ export class ProductController {
   @Delete(':id/image')
   async deleteImage(
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Body('imageUrl') imageUrl: string,
+    @Query('imageUrl') imageUrl: string,
   ) {
     await this.cloudinaryService.deleteImage(id, imageUrl);
     return { message: 'Imagem removida com sucesso' };
