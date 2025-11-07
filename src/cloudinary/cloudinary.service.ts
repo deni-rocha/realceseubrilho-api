@@ -1,5 +1,9 @@
 import { Product } from '@/product/entities/product.entity';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { v2 as cloudinary, ConfigOptions } from 'cloudinary';
@@ -110,6 +114,10 @@ export class CloudinaryService {
    * @param imageUrl - URL da imagem a ser removida
    */
   async deleteImage(productId: string, imageUrl: string): Promise<void> {
+    if (!imageUrl || typeof imageUrl !== 'string') {
+      throw new BadRequestException('URL da imagem inválida');
+    }
+
     const product = await this.productRepository.findOne({
       where: { id: productId },
     });
@@ -120,9 +128,14 @@ export class CloudinaryService {
     await this.productRepository.save(product);
 
     // Extrai o public_id da URL do Cloudinary e remove do Cloudinary
-    const publicId = this.extractPublicIdFromUrl(imageUrl);
-    if (publicId) {
-      await cloudinary.uploader.destroy(publicId);
+    try {
+      const publicId = this.extractPublicIdFromUrl(imageUrl);
+      if (publicId) {
+        await cloudinary.uploader.destroy(publicId);
+      }
+    } catch (error) {
+      console.error('Erro ao deletar imagem do Cloudinary:', error);
+      // Não lança erro, pois a imagem já foi removida do banco
     }
   }
 

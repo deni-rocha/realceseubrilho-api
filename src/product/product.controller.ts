@@ -12,6 +12,7 @@ import {
   UploadedFiles,
   UseGuards,
   Query,
+  BadRequestException,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -95,6 +96,10 @@ export class ProductController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Query('imageUrl') imageUrl: string,
   ) {
+    if (!imageUrl || imageUrl.trim() === '') {
+      throw new BadRequestException('imageUrl é obrigatória');
+    }
+
     await this.cloudinaryService.deleteImage(id, imageUrl);
     return { message: 'Imagem removida com sucesso' };
   }
