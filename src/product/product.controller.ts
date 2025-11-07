@@ -33,6 +33,20 @@ export class ProductController {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
+  // ========== ENDPOINTS PÚBLICOS ==========
+
+  @Get('public')
+  async findAllPublic() {
+    return this.productService.findAll();
+  }
+
+  @Get('public/:id')
+  async findOnePublic(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.productService.findOne(id);
+  }
+
+  // ========== ENDPOINTS ADMINISTRATIVOS ==========
+
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @Post()
