@@ -49,6 +49,12 @@ export class Order extends BaseEntity {
   @Column({ type: 'varchar', name: 'payment_method', nullable: false })
   paymentMethod: string; // Isso é apenas para registro, a entidade Payment detalha mais
 
+  @Column({ type: 'varchar', name: 'guest_name', nullable: true })
+  guestName: string;
+
+  @Column({ type: 'varchar', name: 'guest_whatsapp', nullable: true })
+  guestWhatsapp: string;
+
   @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
@@ -68,11 +74,11 @@ export class Order extends BaseEntity {
 
   // Relacionamento com User (Um pedido pertence a um usuário)
   @ManyToOne(() => User, (user) => user.orders, {
-    nullable: false,
+    nullable: true,
     onDelete: 'RESTRICT', // Não permite deletar usuário se tiver pedidos
   })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: User | null;
 
   // Relacionamento com OrderItem (Um pedido tem muitos itens)
   @OneToMany(() => OrderItem, (orderItem) => orderItem.order)

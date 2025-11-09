@@ -14,6 +14,7 @@ import { Product } from '@/product/entities/product.entity';
 import { UsersService } from '@/users/users.service';
 import Decimal from 'decimal.js';
 import { CreateOrderFromCartDto } from './dto/create-order-from-cart.dto';
+import { CreateGuestOrderDto } from './dto/create-guest-order.dto';
 
 @Injectable()
 export class OrderService {
@@ -25,6 +26,75 @@ export class OrderService {
     private readonly shoppingCartService: ShoppingCartService,
     private dataSource: DataSource,
   ) {}
+
+  async createGuestOrder(
+    createGuestOrderDto: CreateGuestOrderDto,
+  ): Promise<Order> {
+    const { guestName, guestWhatsapp, items } = createGuestOrderDto;
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      let totalAmount = new Decimal(0);
+      const orderItems: OrderItem[] = [];
+
+      // Verificar estoque e preparar orderItems
+      for (const item of items) {
+        const product = await this.productService.findOne(item.productId);
+
+        if (product.stockQuantity < item.quantity) {
+          throw new BadRequestException(
+            `Estoque insuficiente para o produto "${product.name}".`,
+          );
+        }
+
+        const unitPrice = new Decimal(product.price);
+        const subtotal = unitPrice.mul(item.quantity);
+
+        const orderItem = new OrderItem();
+        orderItem.product = product;
+        orderItem.quantity = item.quantity;
+        orderItem.unitPrice = parseFloat(unitPrice.toFixed(2));
+        orderItem.subtotal = parseFloat(subtotal.toFixed(2));
+
+        orderItems.push(orderItem);
+        totalAmount = totalAmount.plus(subtotal);
+
+        // Atualizar estoque
+        product.stockQuantity -= item.quantity;
+        await queryRunner.manager.save(Product, product);
+      }
+
+      const newOrder = new Order();
+      newOrder.guestName = guestName;
+      newOrder.guestWhatsapp = guestWhatsapp;
+      newOrder.user = null; // Sem usuário vinculado
+      newOrder.orderDate = new Date();
+      newOrder.status = OrderStatus.PENDING;
+      newOrder.totalAmount = parseFloat(totalAmount.toFixed(2));
+      newOrder.shippingAddress = 'A combinar via WhatsApp';
+      newOrder.paymentMethod = 'WHATSAPP';
+      newOrder.orderItems = orderItems;
+
+      const savedOrder = await queryRunner.manager.save(Order, newOrder);
+
+      // Salvar os itens do pedido
+      for (const item of orderItems) {
+        item.order = savedOrder;
+        await queryRunner.manager.save(OrderItem, item);
+      }
+
+      await queryRunner.commitTransaction();
+      return savedOrder;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
 
   async createOrderFromCart(
     createOrderFromCartDto: CreateOrderFromCartDto,

@@ -7,6 +7,7 @@ import {
   Delete,
   Patch,
   ParseUUIDPipe,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { UpdateOrderStatusDto } from './dto/update-order-satus.dto';
@@ -14,6 +15,7 @@ import { CreateOrderFromCartDto } from './dto/create-order-from-cart.dto';
 import { UserRole } from '@/role/role.enum';
 import { Roles } from '@/auth/decorators/roles.decorator';
 import { ConfigService } from '@nestjs/config';
+import { CreateGuestOrderDto } from './dto/create-guest-order.dto';
 
 @Controller('orders')
 export class OrderController {
@@ -21,6 +23,31 @@ export class OrderController {
     private readonly orderService: OrderService,
     private readonly nestConfigService: ConfigService,
   ) {}
+
+  @Post('guest')
+  // Endpoint público - sem autenticação
+  async createGuestOrder(@Body() createGuestOrderDto: CreateGuestOrderDto) {
+    const order = await this.orderService.createGuestOrder(createGuestOrderDto);
+
+    const contactNumber = this.nestConfigService.get<string>(
+      'WHATSAPP_CONTACT_NUMBER',
+    );
+
+    const totalAmountFormatted = new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    }).format(order.totalAmount);
+
+    const message = `Olá! Sou ${createGuestOrderDto.guestName} e gostaria de finalizar meu pedido Nº ${order.id}. Valor total: ${totalAmountFormatted}.`;
+
+    const whatsappUrl = `https://wa.me/${contactNumber}?text=${encodeURIComponent(message)}`;
+
+    return {
+      message: 'Pedido criado com sucesso! Redirecionando para o WhatsApp.',
+      whatsappUrl,
+      orderDetails: order,
+    };
+  }
 
   @Post()
   async createOrderFromCart(
@@ -34,7 +61,7 @@ export class OrderController {
       'WHATSAPP_CONTACT_NUMBER',
     );
     if (!contactNumber) {
-      throw new Error(
+      throw new InternalServerErrorException(
         'Número de contato do WhatsApp não configurado no servidor.',
       );
     }
