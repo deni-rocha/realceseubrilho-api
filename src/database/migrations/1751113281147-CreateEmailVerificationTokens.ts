@@ -1,8 +1,10 @@
-import { MigrationInterface, QueryRunner, Table, ForeignKey } from 'typeorm';
+import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
 export class CreateEmailVerificationTokens1751113281147
   implements MigrationInterface
 {
+  name = 'CreateEmailVerificationTokens1751113281147';
+
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
 

@@ -1,9 +1,9 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class UpdateProductImageUrlToArray1730235386207
+export class UpdateProductImageUrlToArray1762719664467
   implements MigrationInterface
 {
-  name = 'UpdateProductImageUrlToArray1730235386207';
+  name = 'UpdateProductImageUrlToArray1762719664467';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Cria uma coluna temporária para armazenar os dados antigos
