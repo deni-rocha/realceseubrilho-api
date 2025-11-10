@@ -17,38 +17,41 @@ export class ProductService {
   ) {}
 
   async create(createProductDto: CreateProductDto): Promise<Product> {
-    const { categoryId, ...productData } = createProductDto;
-    let category: ProductCategory | null = null;
+    const { categoryIds, ...productData } = createProductDto;
+    const categories: ProductCategory[] = [];
 
-    if (categoryId) {
-      category = await this.categoryRepository.findOne({
-        where: { id: categoryId },
-      });
-      if (!category) {
-        throw new NotFoundException(
-          `Categoria de produto com ID "${categoryId}" não encontrada`,
-        );
+    if (categoryIds && categoryIds.length > 0) {
+      for (const categoryId of categoryIds) {
+        const category = await this.categoryRepository.findOne({
+          where: { id: categoryId },
+        });
+        if (!category) {
+          throw new NotFoundException(
+            `Categoria de produto com ID "${categoryId}" não encontrada`,
+          );
+        }
+        categories.push(category);
       }
     }
 
     const price = new Decimal(productData.price).toFixed(2);
 
-    const newProduct = this.productRepository.create(
-      category
-        ? { ...productData, category, price }
-        : { ...productData, price },
-    );
+    const newProduct = this.productRepository.create({
+      ...productData,
+      price,
+      categories,
+    });
     return this.productRepository.save(newProduct);
   }
 
   async findAll(): Promise<Product[]> {
-    return this.productRepository.find({ relations: ['category'] });
+    return this.productRepository.find({ relations: ['categories'] });
   }
 
   async findOne(id: string): Promise<Product> {
     const product = await this.productRepository.findOne({
       where: { id },
-      relations: ['category'],
+      relations: ['categories'],
     });
     if (!product) {
       throw new NotFoundException(`Produto com ID "${id}" não encontrado`);
@@ -62,18 +65,23 @@ export class ProductService {
   ): Promise<Product> {
     const product = await this.findOne(id);
 
-    if (updateProductDto.categoryId) {
-      const newCategory = await this.categoryRepository.findOne({
-        where: { id: updateProductDto.categoryId },
-      });
-      if (!newCategory) {
-        throw new NotFoundException(
-          `Categoria de produto com ID "${updateProductDto.categoryId}" não encontrada`,
-        );
+    if (updateProductDto.categoryIds) {
+      const categories: ProductCategory[] = [];
+      for (const categoryId of updateProductDto.categoryIds) {
+        const category = await this.categoryRepository.findOne({
+          where: { id: categoryId },
+        });
+        if (!category) {
+          throw new NotFoundException(
+            `Categoria de produto com ID "${categoryId}" não encontrada`,
+          );
+        }
+        categories.push(category);
       }
-      product.category = newCategory;
+      product.categories = categories;
     }
 
+    delete updateProductDto.categoryIds;
     Object.assign(product, updateProductDto);
     product.updatedAt = new Date();
     return this.productRepository.save(product);
@@ -95,7 +103,7 @@ export class ProductService {
     return this.productRepository.save(product);
   }
 
-  async calculateTotal(products: Product[]): Promise<string> {
+  calculateTotal(products: Product[]): string {
     return products
       .reduce((total, product) => {
         return total.plus(new Decimal(product.price));

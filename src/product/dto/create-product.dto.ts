@@ -33,9 +33,10 @@ export class CreateProductDto {
   @Min(0)
   stockQuantity: number;
 
-  @IsUUID()
+  @IsArray()
+  @IsUUID('4', { each: true })
   @IsOptional()
-  categoryId?: string;
+  categoryIds?: string[];
 
   @IsArray()
   @IsUrl({}, { each: true })

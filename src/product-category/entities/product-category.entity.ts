@@ -3,7 +3,7 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  OneToMany,
+  ManyToMany,
   BaseEntity,
 } from 'typeorm';
 
@@ -35,6 +35,6 @@ export class ProductCategory extends BaseEntity {
   })
   updatedAt: Date;
 
-  @OneToMany(() => Product, (product) => product.category)
+  @ManyToMany(() => Product, (product) => product.categories)
   products: Product[];
 }

@@ -5,8 +5,8 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  JoinColumn,
+  ManyToMany,
+  JoinTable,
   OneToMany,
   BaseEntity,
 } from 'typeorm';
@@ -48,12 +48,21 @@ export class Product extends BaseEntity {
   })
   updatedAt: Date;
 
-  @ManyToOne(() => ProductCategory, (category) => category.products, {
-    nullable: true,
-    onDelete: 'SET NULL',
+  @ManyToMany(() => ProductCategory, (category) => category.products, {
+    cascade: true,
   })
-  @JoinColumn({ name: 'category_id' })
-  category: ProductCategory;
+  @JoinTable({
+    name: 'product_categories_relation',
+    joinColumn: {
+      name: 'product_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'category_id',
+      referencedColumnName: 'id',
+    },
+  })
+  categories: ProductCategory[];
 
   @OneToMany(() => CartItem, (cartItem) => cartItem.product)
   cartItems: CartItem[];
