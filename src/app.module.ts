@@ -11,6 +11,8 @@ import { PaymentModule } from './payment/payment.module';
 import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
 import { EmailModule } from './email/email.module';
+import { ExpenseModule } from './expense/expense.module';
+import { StatisticsModule } from './statistics/statistics.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
@@ -48,6 +50,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     PaymentModule,
     AuthModule,
     EmailModule,
+    ExpenseModule,
+    StatisticsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

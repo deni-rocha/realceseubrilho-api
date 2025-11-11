@@ -25,6 +25,15 @@ export class Product extends BaseEntity {
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   price: string;
 
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    default: 0,
+  })
+  cost: number; // Custo de aquisição do produto
+
   @Column({ type: 'int', nullable: false, default: 0 })
   stockQuantity: number;
 

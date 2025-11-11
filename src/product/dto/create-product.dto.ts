@@ -31,6 +31,11 @@ export class CreateProductDto {
 
   @IsNumber()
   @Min(0)
+  @IsOptional()
+  cost?: number;
+
+  @IsNumber()
+  @Min(0)
   stockQuantity: number;
 
   @IsArray()
