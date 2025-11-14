@@ -11,6 +11,7 @@ import { User } from './entities/user.entity';
 import { Repository, QueryRunner } from 'typeorm';
 import { Role } from '@/role/entities/role.entity';
 import * as bcrypt from 'bcrypt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
@@ -20,6 +21,8 @@ export class UsersService {
 
     @InjectRepository(Role)
     private readonly rolesRepository: Repository<Role>,
+
+    private readonly configService: ConfigService,
   ) {}
 
   // 🔧 Método base para evitar repetição
@@ -153,7 +156,7 @@ export class UsersService {
       throw new NotFoundException('Usuário não encontrado');
     }
 
-    if (user.email === 'admin@realceseubrilho.com') {
+    if (user.email === this.configService.get('ADMIN_EMAIL')) {
       throw new ConflictException('Não é possível deletar esse usuário');
     }
 
