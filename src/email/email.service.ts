@@ -1,43 +1,38 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import * as handlebars from 'handlebars';
 import * as fs from 'fs';
 import * as path from 'path';
+import { SentMessageInfo } from 'nodemailer';
 
 @Injectable()
 export class EmailService {
   private transporter: nodemailer.Transporter;
-  private readonly logger = new Logger(EmailService.name);
 
-  constructor() {
+  constructor(private configService: ConfigService) {
     this.setupTransporter();
   }
 
-  private async setupTransporter() {
-    try {
-      this.transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
-        },
-        // Configurações adicionais para melhor performance
-        pool: true,
-        maxConnections: 5,
-        maxMessages: 100,
-        rateLimit: 14, // Gmail permite 14 emails por segundo
-      });
+  private async setupTransporter(): Promise<void> {
+    this.transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: this.configService.get<string>('SMTP_USER'),
+        pass: this.configService.get<string>('SMTP_PASS'),
+      },
+      // Configurações adicionais para melhor performance
+      pool: true,
+      maxConnections: 5,
+      maxMessages: 100,
+      rateLimit: 14, // Gmail permite 14 emails por segundo
+    });
 
-      // Verificar conexão
-      await this.transporter.verify();
-      this.logger.log('✅ Conexão com Gmail estabelecida com sucesso!');
-    } catch (error) {
-      this.logger.error('❌ Erro na configuração do Gmail:', error);
-      throw error;
-    }
+    // Verificar conexão
+    await this.transporter.verify();
   }
 
-  private async loadTemplate(
+  private loadTemplate(
     templateName: string,
   ): Promise<HandlebarsTemplateDelegate> {
     // Tentar diferentes caminhos possíveis
@@ -75,87 +70,79 @@ export class EmailService {
     }
 
     const templateContent = fs.readFileSync(templatePath, 'utf-8');
-    return handlebars.compile(templateContent);
+    return Promise.resolve(handlebars.compile(templateContent));
   }
 
-  async sendVerificationEmail(email: string, name: string, token: string) {
-    try {
-      const template = await this.loadTemplate('verification-email');
-      const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
+  async sendVerificationEmail(
+    email: string,
+    name: string,
+    token: string,
+  ): Promise<SentMessageInfo> {
+    const template = await this.loadTemplate('verification-email');
+    const verificationUrl = `${this.configService.get<string>('FRONTEND_URL')}/verify-email?token=${token}`;
 
-      const html = template({
-        name,
-        verificationUrl,
-        supportEmail: process.env.SUPPORT_EMAIL,
-        appName: 'Realce Seu Brilho',
-      });
+    const html = template({
+      name,
+      verificationUrl,
+      supportEmail: this.configService.get<string>('SUPPORT_EMAIL'),
+      appName: 'Realce Seu Brilho',
+    });
 
-      const mailOptions = {
-        from: `"Realce Seu Brilho" <${process.env.SMTP_USER}>`,
-        to: email,
-        subject: 'Verifique seu e-mail - Realce Seu Brilho',
-        html,
-        // Configurações adicionais para melhor entrega
-        headers: {
-          'X-Priority': '1',
-          'X-MSMail-Priority': 'High',
-          Importance: 'high',
-        },
-      };
+    const mailOptions = {
+      from: `"Realce Seu Brilho" <${this.configService.get<string>('SMTP_USER')}>`,
+      to: email,
+      subject: 'Verifique seu e-mail - Realce Seu Brilho',
+      html,
+      // Configurações adicionais para melhor entrega
+      headers: {
+        'X-Priority': '1',
+        'X-MSMail-Priority': 'High',
+        Importance: 'high',
+      },
+    };
 
-      const result = await this.transporter.sendMail(mailOptions);
-      this.logger.log(`✅ E-mail de verificação enviado para ${email}`);
-      return result;
-    } catch (error) {
-      this.logger.error(`❌ Erro ao enviar e-mail para ${email}:`, error);
-      throw new Error('Falha ao enviar e-mail de verificação');
-    }
+    return await this.transporter.sendMail(mailOptions);
   }
 
-  async sendPasswordResetEmail(email: string, name: string, token: string) {
-    try {
-      const template = await this.loadTemplate('password-reset');
-      const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+  async sendPasswordResetEmail(
+    email: string,
+    name: string,
+    token: string,
+  ): Promise<SentMessageInfo> {
+    const template = await this.loadTemplate('password-reset');
+    const resetUrl = `${this.configService.get<string>('FRONTEND_URL')}/reset-password/form?token=${token}`;
 
-      const html = template({
-        name,
-        resetUrl,
-        supportEmail: process.env.SUPPORT_EMAIL,
-        appName: 'Realce Seu Brilho',
-      });
+    const html = template({
+      name,
+      resetUrl,
+      supportEmail: this.configService.get<string>('SUPPORT_EMAIL'),
+      appName: 'Realce Seu Brilho',
+    });
 
-      const mailOptions = {
-        from: `"Realce Seu Brilho" <${process.env.SMTP_USER}>`,
-        to: email,
-        subject: 'Redefinir senha - Realce Seu Brilho',
-        html,
-        headers: {
-          'X-Priority': '1',
-          'X-MSMail-Priority': 'High',
-          Importance: 'high',
-        },
-      };
+    const mailOptions = {
+      from: `"Realce Seu Brilho" <${this.configService.get<string>('SMTP_USER')}>`,
+      to: email,
+      subject: 'Redefinir senha - Realce Seu Brilho',
+      html,
+      headers: {
+        'X-Priority': '1',
+        'X-MSMail-Priority': 'High',
+        Importance: 'high',
+      },
+    };
 
-      const result = await this.transporter.sendMail(mailOptions);
-      this.logger.log(`✅ E-mail de redefinição enviado para ${email}`);
-      return result;
-    } catch (error) {
-      this.logger.error(
-        `❌ Erro ao enviar e-mail de redefinição para ${email}:`,
-        error,
-      );
-      throw new Error('Falha ao enviar e-mail de redefinição');
-    }
+    return await this.transporter.sendMail(mailOptions);
   }
 
-  async testConnection() {
+  async testConnection(): Promise<{ success: boolean; message: string }> {
     try {
       await this.transporter.verify();
-      this.logger.log('✅ Conexão com Gmail OK!');
       return { success: true, message: 'Conexão estabelecida com sucesso!' };
     } catch (error) {
-      this.logger.error('❌ Erro na conexão com Gmail:', error);
-      return { success: false, message: error.message };
+      if (error instanceof Error) {
+        return { success: false, message: error.message };
+      }
+      return { success: false, message: 'Erro desconhecido' };
     }
   }
 }

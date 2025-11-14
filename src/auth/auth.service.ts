@@ -285,8 +285,6 @@ export class AuthService {
       used: false,
     });
 
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL');
-    const resetLink = `${frontendUrl}/reset-password?token=${token}`;
     await this.emailService.sendPasswordResetEmail(
       user.email,
       user.name,
