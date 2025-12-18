@@ -9,6 +9,7 @@ import {
   Min,
   IsArray,
   IsUrl,
+  IsBoolean,
 } from 'class-validator';
 
 export class CreateProductDto {
@@ -37,6 +38,24 @@ export class CreateProductDto {
   @IsNumber()
   @Min(0)
   stockQuantity: number;
+
+  @IsBoolean()
+  @IsOptional()
+  isFeatured?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  isOnSale?: boolean;
+
+  @IsDecimalString()
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (typeof value === 'number') {
+      return value.toFixed(2);
+    }
+    return value ? String(value) : null;
+  })
+  salePrice?: string;
 
   @IsArray()
   @IsUUID('4', { each: true })

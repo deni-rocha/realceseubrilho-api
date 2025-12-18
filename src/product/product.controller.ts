@@ -40,6 +40,16 @@ export class ProductController {
     return this.productService.findAll();
   }
 
+  @Get('public/featured')
+  async findFeaturedPublic() {
+    return this.productService.findFeatured();
+  }
+
+  @Get('public/on-sale')
+  async findOnSalePublic() {
+    return this.productService.findOnSale();
+  }
+
   @Get('public/:id')
   async findOnePublic(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.productService.findOne(id);
@@ -123,6 +133,20 @@ export class ProductController {
   @Get()
   async findAll() {
     return this.productService.findAll();
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @Get('featured')
+  async findFeatured() {
+    return this.productService.findFeatured();
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @Get('on-sale')
+  async findOnSale() {
+    return this.productService.findOnSale();
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

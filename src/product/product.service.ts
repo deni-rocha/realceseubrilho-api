@@ -48,6 +48,22 @@ export class ProductService {
     return this.productRepository.find({ relations: ['categories'] });
   }
 
+  async findFeatured(): Promise<Product[]> {
+    return this.productRepository.find({
+      where: { isFeatured: true },
+      relations: ['categories'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async findOnSale(): Promise<Product[]> {
+    return this.productRepository.find({
+      where: { isOnSale: true },
+      relations: ['categories'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
   async findOne(id: string): Promise<Product> {
     const product = await this.productRepository.findOne({
       where: { id },

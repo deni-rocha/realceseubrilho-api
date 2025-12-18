@@ -34,6 +34,21 @@ export class Product extends BaseEntity {
   })
   cost: number; // Custo de aquisição do produto
 
+  @Column({ type: 'boolean', default: false, name: 'is_featured' })
+  isFeatured: boolean; // Produto em destaque
+
+  @Column({ type: 'boolean', default: false, name: 'is_on_sale' })
+  isOnSale: boolean; // Produto em promoção
+
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    name: 'sale_price',
+  })
+  salePrice: string; // Preço promocional
+
   @Column({ type: 'int', nullable: false, default: 0 })
   stockQuantity: number;
 
