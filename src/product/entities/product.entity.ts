@@ -30,9 +30,8 @@ export class Product extends BaseEntity {
     precision: 10,
     scale: 2,
     nullable: true,
-    default: 0,
   })
-  cost: number; // Custo de aquisição do produto
+  cost: string; // Custo de aquisição do produto
 
   @Column({ type: 'boolean', default: false, name: 'is_featured' })
   isFeatured: boolean; // Produto em destaque

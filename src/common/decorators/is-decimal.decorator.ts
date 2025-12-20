@@ -7,7 +7,7 @@ import {
 import { Decimal } from 'decimal.js';
 
 export function IsDecimalString(validationOptions?: ValidationOptions) {
-  return function (object: Object, propertyName: string) {
+  return function (object: object, propertyName: string) {
     registerDecorator({
       name: 'isDecimalString',
       target: object.constructor,

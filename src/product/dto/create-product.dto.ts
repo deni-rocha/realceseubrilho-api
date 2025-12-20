@@ -30,10 +30,15 @@ export class CreateProductDto {
   })
   price: string;
 
-  @IsNumber()
-  @Min(0)
+  @IsDecimalString()
   @IsOptional()
-  cost?: number;
+  @Transform(({ value }) => {
+    if (typeof value === 'number') {
+      return value.toFixed(2);
+    }
+    return value ? String(value) : null;
+  })
+  cost?: string;
 
   @IsNumber()
   @Min(0)
