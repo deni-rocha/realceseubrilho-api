@@ -13,7 +13,7 @@ async function bootstrap() {
   );
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   app.enableCors({
-    origin: '*',
+    origin: process.env.CORS_ORIGIN || '*',
   });
   await app.listen(process.env.PORT ?? 3000);
 }
