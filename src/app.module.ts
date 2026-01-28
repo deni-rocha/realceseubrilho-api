@@ -19,24 +19,26 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath: [`.env.${process.env.NODE_ENV || 'development' }`,
+        '.env'
+      ]
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
-        // Verifica se é ambiente de desenvolvimento
-        const isProduction =
-          configService.get<string>('NODE_ENV') === 'production';
-
+        const isDevelopment = configService.get<string>('NODE_ENV') === 'development';
+        
         return {
-          type: 'postgres',
-          url: isProduction
-            ? configService.get<string>('POOL_DATABASE_URL')
-            : configService.get<string>('DEV_DATABASE_URL'),
+          type: 'mysql',
+          host: configService.get<string>('DB_HOST'),
+          port: configService.get<number>('DB_PORT'),
+          username: configService.get<string>('DB_USERNAME'),
+          password: configService.get<string>('DB_PASSWORD'),
+          database: configService.get<string>('DB_DATABASE'),
           entities: [__dirname + '/**/*.entity{.ts,.js}'],
           synchronize: false,
           migrations: [__dirname + '/../src/database/migrations/*.{ts,js}'],
-          migrationsRun: false,
+          migrationsRun: !isDevelopment,
         };
       },
       inject: [ConfigService],

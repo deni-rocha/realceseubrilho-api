@@ -51,7 +51,7 @@ export class Product extends BaseEntity {
   @Column({ type: 'int', nullable: false, default: 0 })
   stockQuantity: number;
 
-  @Column({ type: 'text', array: true, default: [] })
+  @Column({ type: 'simple-array', default: '' })
   imageUrls: string[];
 
   @Column({

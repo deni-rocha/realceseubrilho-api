@@ -1,24 +1,25 @@
 // ormconfig.ts (ou data-source.ts) na RAIZ do seu projeto
 import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
+import * as path from 'path';
 
-dotenv.config();
+// Carrega o arquivo .env apropriado baseado no NODE_ENV
+const envFile = process.env.NODE_ENV === 'production' 
+  ? '.env.production' 
+  : process.env.NODE_ENV === 'test' 
+    ? '.env.test' 
+    : '.env.development';
 
-const isProduction = process.env.NODE_ENV === 'production';
-const isDevelopment = process.env.NODE_ENV === 'development';
-
-console.log(`Ambiente atual: ${process.env.NODE_ENV}`);
-if (isProduction) {
-  console.log('Rodando em produção');
-} else if (isDevelopment) {
-  console.log('Rodando em desenvolvimento');
-} else {
-  console.log('Ambiente não identificado');
-}
+const envPath = path.resolve(process.cwd(), envFile);
+dotenv.config({ path: envPath });
 
 export default new DataSource({
-  type: 'postgres',
-  url: isProduction ? process.env.DIRECT_URL : process.env.DEV_DATABASE_URL,
+  type: 'mysql',
+  host: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT || '3306', 10),
+  username: process.env.DB_USERNAME || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_DATABASE || 'realceseubrilho',
   entities: [__dirname + '/src/**/*.entity{.ts,.js}'],
   migrations: [__dirname + '/src/database/migrations/*.{ts,js}'],
   synchronize: false, // SEMPRE FALSE para o CLI e em produção!
