@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Executa migrações do TypeORM
-npx typeorm migration:run --dataSource /app/dist/ormconfig.js
+# Aguarda o banco de dados se necessário (opcional se usar healthcheck no compose)
+echo "Rodando migrations..."
+npm run typeorm migration:run -- -d dist/ormconfig.js
 
-# Sobe a aplicação
-node /app/dist/src/main
+echo "Iniciando a aplicação..."
+node dist/main.js

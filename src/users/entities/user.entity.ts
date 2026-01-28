@@ -20,7 +20,6 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', length: 100, nullable: false })
   name: string;
 
-  @Unique(['email'])
   @Column({ type: 'varchar', unique: true, nullable: false })
   email: string;
 

@@ -1,28 +1,32 @@
+# Estágio de Build
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
 COPY package*.json ./
+RUN npm install
 
-RUN npm ci
 COPY . .
-
 RUN npm run build
 
-
-FROM node:20-alpine AS production
-
+# Estágio de Execução
+FROM node:20-alpine AS runner
 
 WORKDIR /app
 
+ENV NODE_ENV=production
+
+# Instala apenas dependências de produção para reduzir o tamanho
+COPY package*.json ./
+RUN npm install --only=production
+
+# Copia o build e o entrypoint
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/scripts/entrypoint.sh ./scripts/entrypoint.sh
 
-
-COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+# Dá permissão de execução ao script
+RUN chmod +x ./scripts/entrypoint.sh
 
 EXPOSE 3000
 
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+ENTRYPOINT ["./scripts/entrypoint.sh"]
