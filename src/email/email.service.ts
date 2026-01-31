@@ -37,22 +37,15 @@ export class EmailService {
   ): Promise<HandlebarsTemplateDelegate> {
     // Tentar diferentes caminhos possíveis
     const possiblePaths = [
+      // Caminho absoluto especificado pelo usuário (produção)
       path.join('/home/purewaves/dist/email/templates', `${templateName}.hbs`),
       path.join(__dirname, 'templates', `${templateName}.hbs`),
-      path.join(
-        process.cwd(),
-        'src',
-        'email',
-        'templates',
-        `${templateName}.hbs`,
-      ),
-      path.join(
-        process.cwd(),
-        'dist',
-        'email',
-        'templates',
-        `${templateName}.hbs`,
-      ),
+      // Caminho para desenvolvimento
+      path.join(process.cwd(), 'src', 'email', 'templates', `${templateName}.hbs`),
+      // Caminho alternativo para produção
+      path.join(path.dirname(require.main?.filename || process.mainModule?.filename || ''), 'email', 'templates', `${templateName}.hbs`),
+      // Caminho alternativo com dirname do __filename
+      path.join(path.dirname(__filename || __dirname), 'templates', `${templateName}.hbs`),
     ];
 
     let templatePath: string | null = null;
