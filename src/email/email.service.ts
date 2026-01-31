@@ -37,6 +37,7 @@ export class EmailService {
   ): Promise<HandlebarsTemplateDelegate> {
     // Tentar diferentes caminhos possíveis
     const possiblePaths = [
+      path.join('/home/purewaves/dist/email/templates', `${templateName}.hbs`),
       path.join(__dirname, 'templates', `${templateName}.hbs`),
       path.join(
         process.cwd(),
