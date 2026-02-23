@@ -201,6 +201,14 @@ export class OrderService {
     return order;
   }
 
+  async findByUserId(userId: string): Promise<Order[]> {
+    return this.orderRepository.find({
+      where: { user: { id: userId } },
+      relations: ['orderItems', 'orderItems.product'],
+      order: { orderDate: 'DESC' },
+    });
+  }
+
   async updateStatus(id: string, newStatus: OrderStatus): Promise<Order> {
     const order = await this.findOne(id);
     order.status = newStatus;

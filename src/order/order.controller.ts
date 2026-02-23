@@ -38,7 +38,12 @@ export class OrderController {
       currency: 'BRL',
     }).format(order.totalAmount);
 
-    const message = `Olá! Sou ${createGuestOrderDto.guestName} e gostaria de finalizar meu pedido Nº ${order.id}. Valor total: ${totalAmountFormatted}.`;
+    const frontendUrl =
+      this.nestConfigService.get<string>('FRONTEND_URL') ||
+      'http://localhost:3000';
+    const orderTrackingUrl = `${frontendUrl}/pedido/${order.id}`;
+
+    const message = `Olá! Gostaria de finalizar meu pedido. Cliente: ${order.guestName}, total: ${totalAmountFormatted}. Acompanhe o pedido em: ${orderTrackingUrl}`;
 
     const whatsappUrl = `https://wa.me/${contactNumber}?text=${encodeURIComponent(message)}`;
 
@@ -71,7 +76,13 @@ export class OrderController {
       currency: 'BRL',
     }).format(order.totalAmount);
 
-    const message = `Olá! Gostaria de finalizar meu pedido Nº ${order.id}. Valor total: ${totalAmountFormatted}.`;
+    const frontendUrl =
+      this.nestConfigService.get<string>('FRONTEND_URL') ||
+      'http://localhost:3000';
+    const orderTrackingUrl = `${frontendUrl}/pedido/${order.id}`;
+
+    const customerName = order.user?.name || order.guestName;
+    const message = `Olá! Gostaria de finalizar meu pedido. Cliente: ${customerName}. Total: ${totalAmountFormatted}. Acompanhe o pedido em: ${orderTrackingUrl}`;
 
     const whatsappUrl = `https://wa.me/${contactNumber}?text=${encodeURIComponent(
       message,
@@ -92,6 +103,11 @@ export class OrderController {
   @Get(':id')
   async findOne(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.orderService.findOne(id);
+  }
+
+  @Get('user/:userId')
+  async findByUser(@Param('userId', new ParseUUIDPipe()) userId: string) {
+    return this.orderService.findByUserId(userId);
   }
 
   @Patch(':id/status')
