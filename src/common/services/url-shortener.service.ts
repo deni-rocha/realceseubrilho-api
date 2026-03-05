@@ -66,9 +66,7 @@ export class UrlShortenerService {
    */
   private buildShortUrl(shortCode: string): string {
     const baseUrl =
-      this.configService.get<string>('SHORT_URL_BASE') ||
-      this.configService.get<string>('FRONTEND_URL') ||
-      'http://localhost:5173';
+      this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
     return `${baseUrl}/s/${shortCode}`;
   }
 

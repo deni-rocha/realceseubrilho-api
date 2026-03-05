@@ -74,9 +74,12 @@ export class ShoppingCartService {
 
     let cartItem = cart.cartItems.find((item) => item.product.id === productId);
 
+    const unitPrice =
+      product.isOnSale && product.salePrice ? product.salePrice : product.price;
+
     if (cartItem) {
       cartItem.quantity += quantity;
-      cartItem.unitPrice = product.price;
+      cartItem.unitPrice = unitPrice;
       cartItem.subtotal = new Decimal(cartItem.quantity)
         .mul(cartItem.unitPrice)
         .toFixed(2);
@@ -86,8 +89,8 @@ export class ShoppingCartService {
         cart,
         product,
         quantity,
-        unitPrice: product.price,
-        subtotal: new Decimal(product.price).mul(quantity).toFixed(2),
+        unitPrice: unitPrice,
+        subtotal: new Decimal(unitPrice).mul(quantity).toFixed(2),
       });
       await this.cartItemRepository.save(cartItem);
     }
@@ -136,8 +139,11 @@ export class ShoppingCartService {
       );
     }
 
+    const unitPrice =
+      product.isOnSale && product.salePrice ? product.salePrice : product.price;
+
     cartItem.quantity = newQuantity;
-    cartItem.unitPrice = product.price;
+    cartItem.unitPrice = unitPrice;
     cartItem.subtotal = new Decimal(cartItem.quantity)
       .mul(cartItem.unitPrice)
       .toFixed(2);

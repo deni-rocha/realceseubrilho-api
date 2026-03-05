@@ -50,7 +50,10 @@ export class OrderService {
           );
         }
 
-        const unitPrice = new Decimal(product.price);
+        const unitPrice =
+          product.isOnSale && product.salePrice
+            ? new Decimal(product.salePrice)
+            : new Decimal(product.price);
         const subtotal = unitPrice.mul(item.quantity);
 
         const orderItem = new OrderItem();
@@ -137,7 +140,10 @@ export class OrderService {
           );
         }
 
-        const unitPrice = new Decimal(product.price);
+        const unitPrice =
+          product.isOnSale && product.salePrice
+            ? new Decimal(product.salePrice)
+            : new Decimal(product.price);
         const subtotal = unitPrice.mul(cartItem.quantity);
 
         const orderItem = new OrderItem();
