@@ -1,0 +1,44 @@
+services:
+  mariadb:
+    image: mariadb:10.11
+    container_name: realceseubrilho-mariadb
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_USER: frevolink
+      MYSQL_PASSWORD: root_password
+      MYSQL_DATABASE: realceseubrilho
+    ports:
+      - '3306:3306'
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ['CMD', 'healthcheck.sh', '--connect', '--innodb_initialized']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - realce-network
+
+  api:
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: realceseubrilho-api
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    ports:
+      - '3000:3000'
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - realce-network
+
+volumes:
+  mariadb_data:
+
+networks:
+  realce-network:
+    driver: bridge

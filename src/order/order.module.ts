@@ -7,6 +7,7 @@ import { OrderItem } from '@/order-item/entities/order-item.entity';
 import { UsersModule } from '@/users/users.module';
 import { ProductModule } from '@/product/product.module';
 import { ShoppingCartModule } from '@/shopping-cart/shopping-cart.module';
+import { CommonModule } from '@/common/common.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ShoppingCartModule } from '@/shopping-cart/shopping-cart.module';
     UsersModule,
     ProductModule,
     ShoppingCartModule,
+    CommonModule,
   ],
   controllers: [OrderController],
   providers: [OrderService],

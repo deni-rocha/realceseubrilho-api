@@ -13,21 +13,18 @@ import { AuthModule } from './auth/auth.module';
 import { EmailModule } from './email/email.module';
 import { ExpenseModule } from './expense/expense.module';
 import { StatisticsModule } from './statistics/statistics.module';
+import { CommonModule } from './common/common.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [`.env.${process.env.NODE_ENV || 'development' }`,
-        '.env'
-      ]
+      envFilePath: [`.env.${process.env.NODE_ENV || 'development'}`, '.env'],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
-        const isDevelopment = configService.get<string>('NODE_ENV') === 'development';
-        
         return {
           type: 'mysql',
           host: configService.get<string>('DB_HOST'),
@@ -38,7 +35,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
           entities: [__dirname + '/**/*.entity{.ts,.js}'],
           synchronize: false,
           migrations: [__dirname + '/../src/database/migrations/*.{ts,js}'],
-          migrationsRun: !isDevelopment,
+          migrationsRun: false, // Controlado manualmente no DatabaseModule
         };
       },
       inject: [ConfigService],
@@ -54,6 +51,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     EmailModule,
     ExpenseModule,
     StatisticsModule,
+    CommonModule,
   ],
   controllers: [AppController],
   providers: [AppService],

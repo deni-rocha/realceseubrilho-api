@@ -4,10 +4,9 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 
 // Carrega o arquivo .env apropriado baseado no NODE_ENV
-const envFile = process.env.NODE_ENV === 'production' 
-  ? '.env.production' 
-  : process.env.NODE_ENV === 'test' 
-    ? '.env.test' 
+const envFile =
+  process.env.NODE_ENV === 'production'
+    ? '.env.production'
     : '.env.development';
 
 const envPath = path.resolve(process.cwd(), envFile);
