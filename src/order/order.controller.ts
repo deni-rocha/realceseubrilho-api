@@ -16,12 +16,14 @@ import { UserRole } from '@/role/role.enum';
 import { Roles } from '@/auth/decorators/roles.decorator';
 import { ConfigService } from '@nestjs/config';
 import { CreateGuestOrderDto } from './dto/create-guest-order.dto';
+import { UrlShortenerService } from '@/common/services/url-shortener.service';
 
 @Controller('orders')
 export class OrderController {
   constructor(
     private readonly orderService: OrderService,
     private readonly nestConfigService: ConfigService,
+    private readonly urlShortenerService: UrlShortenerService,
   ) {}
 
   @Post('guest')
@@ -41,7 +43,11 @@ export class OrderController {
     const frontendUrl =
       this.nestConfigService.get<string>('FRONTEND_URL') ||
       'http://localhost:3000';
-    const orderTrackingUrl = `${frontendUrl}/pedido/${order.id}`;
+    const orderTrackingUrl = await this.urlShortenerService.shortenUrl(
+      `${frontendUrl}/pedido/${order.id}`,
+      'order',
+      order.id,
+    );
 
     const message = `Olá! Gostaria de finalizar meu pedido. Cliente: ${order.guestName}, total: ${totalAmountFormatted}. Acompanhe o pedido em: ${orderTrackingUrl}`;
 
@@ -79,7 +85,11 @@ export class OrderController {
     const frontendUrl =
       this.nestConfigService.get<string>('FRONTEND_URL') ||
       'http://localhost:3000';
-    const orderTrackingUrl = `${frontendUrl}/pedido/${order.id}`;
+    const orderTrackingUrl = await this.urlShortenerService.shortenUrl(
+      `${frontendUrl}/pedido/${order.id}`,
+      'order',
+      order.id,
+    );
 
     const customerName = order.user?.name || order.guestName;
     const message = `Olá! Gostaria de finalizar meu pedido. Cliente: ${customerName}. Total: ${totalAmountFormatted}. Acompanhe o pedido em: ${orderTrackingUrl}`;

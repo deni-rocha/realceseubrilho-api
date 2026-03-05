@@ -1,10 +1,10 @@
-import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Role } from '../../role/entities/role.entity';
 
 @Injectable()
-export class RoleSeederService implements OnModuleInit {
+export class RoleSeederService {
   private readonly logger = new Logger(RoleSeederService.name);
 
   constructor(
@@ -12,12 +12,8 @@ export class RoleSeederService implements OnModuleInit {
     private readonly roleRepository: Repository<Role>,
   ) {}
 
-  async onModuleInit() {
-    this.logger.log('Iniciando o seeding de papéis...');
-    await this.seedRoles();
-  }
-
   async seedRoles() {
+    this.logger.log('Iniciando o seeding de papéis...');
     const defaultRoles = [
       { name: 'CUSTOMER', description: 'Cliente da loja' },
       {
@@ -39,6 +35,6 @@ export class RoleSeederService implements OnModuleInit {
         this.logger.log(`Papel '${roleData.name}' já existe. Ignorando.`);
       }
     }
-    this.logger.log('Seeding de papéis concluído.');
+    this.logger.log('✅ Seeding de papéis concluído.');
   }
 }

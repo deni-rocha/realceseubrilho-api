@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '@/users/entities/user.entity';
@@ -7,7 +7,7 @@ import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class AdminSeederService implements OnModuleInit {
+export class AdminSeederService {
   private readonly logger = new Logger(AdminSeederService.name);
 
   constructor(
@@ -18,20 +18,19 @@ export class AdminSeederService implements OnModuleInit {
     private readonly configService: ConfigService,
   ) {}
 
-  async onModuleInit() {
+  async seedAdmin() {
     this.logger.log('Iniciando o seeding do admin padrão...');
-    // Tentar criar o admin, mas com retries caso o role ainda não exista
     await this.retrySeedAdmin(5, 1000);
   }
 
   private async retrySeedAdmin(maxRetries: number, delayMs: number) {
     for (let i = 0; i < maxRetries; i++) {
       try {
-        await this.seedAdmin();
-        return; // Success, exit the retry loop
+        await this.seedAdminInternal();
+        this.logger.log('✅ Seeding do admin concluído');
+        return;
       } catch (error) {
         if (i === maxRetries - 1) {
-          // Last attempt, log the error
           this.logger.error(
             'Falha ao criar admin após várias tentativas:',
             (error as Error).message,
@@ -46,8 +45,7 @@ export class AdminSeederService implements OnModuleInit {
     }
   }
 
-  private async seedAdmin() {
-    // Buscar o role ADMIN
+  private async seedAdminInternal() {
     const adminRole = await this.roleRepository.findOne({
       where: { name: 'ADMIN' },
     });
@@ -58,7 +56,6 @@ export class AdminSeederService implements OnModuleInit {
       );
     }
 
-    // Configurações do admin via ConfigService
     const adminEmail = this.configService.get<string>(
       'ADMIN_EMAIL',
       'admin@realceseubrilho.com',
@@ -72,7 +69,6 @@ export class AdminSeederService implements OnModuleInit {
       'Administrador do Sistema',
     );
 
-    // Verificar se já existe um admin
     const existingAdmin = await this.userRepository.findOne({
       where: { email: adminEmail },
     });
@@ -82,7 +78,6 @@ export class AdminSeederService implements OnModuleInit {
       return;
     }
 
-    // Criar o admin padrão
     const hashedPassword = await bcrypt.hash(adminPassword, 10);
 
     const adminUser = this.userRepository.create({
@@ -90,7 +85,7 @@ export class AdminSeederService implements OnModuleInit {
       email: adminEmail,
       password: hashedPassword,
       role: adminRole,
-      verified: true, // Admin já vem verificado
+      verified: true,
     });
 
     await this.userRepository.save(adminUser);
