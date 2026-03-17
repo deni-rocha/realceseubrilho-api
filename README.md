@@ -1,88 +1,130 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Realce Seu Brilho API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API RESTful para o e-commerce Realce Seu Brilho, construída com **NestJS** e **TypeScript**.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Tecnologias
 
-## Description
+NestJS, TypeScript, TypeORM, MySQL (MariaDB), autenticação JWT com Passport, envio de e-mails via SMTP com Nodemailer, upload de arquivos com Multer e Cloudinary, validação com class-validator, containerização com Docker e Docker Compose.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Funcionalidades
 
-## Project setup
+- 👤 **Usuários**: Cadastro, autenticação e gerenciamento de perfis
+- 🔐 **Autenticação**: JWT com refresh token e e-mail de confirmação
+- 🛒 **Produtos**: CRUD completo com upload de imagens
+- 🏷️ **Categorias**: Organização de produtos por categorias
+- 🛍️ **Carrinho**: Gerenciamento de itens no carrinho
+- 📦 **Pedidos**: Criação e acompanhamento de pedidos
+- 💳 **Pagamentos**: Integração com gateway de pagamento
+
+## Requisitos
+
+- Node.js 20+
+- npm ou yarn
+- Docker e Docker Compose (para desenvolvimento com containers)
+
+## Instalação
 
 ```bash
-$ npm install
+# Instalar dependências
+npm install
+
+# Copiar variáveis de ambiente
+cp .env.example .env.development
+
+# Configurar banco de dados (MySQL/MariaDB)
+# Ou usar Docker Compose:
+docker-compose up -d
 ```
 
-## Compile and run the project
+## Rodando o projeto
 
 ```bash
-# development
-$ npm run start
+# Desenvolvimento (watch mode)
+npm run start:dev
 
-# watch mode
-$ npm run start:dev
+# Debug mode
+npm run start:debug
 
-# production mode
-$ npm run start:prod
+# Produção
+npm run build
+npm run start:prod
 ```
 
-## Run tests
+## Migrations
 
 ```bash
-# unit tests
-$ npm run test
+# Gerar nova migration
+npm run migration:generate src/migrations/NomeMigration
 
-# e2e tests
-$ npm run test:e2e
+# Criar migration vazia
+npm run migration:create src/migrations/NomeMigration
 
-# test coverage
-$ npm run test:cov
+# Executar migrations
+npm run migration:run
+
+# Reverter migration
+npm run migration:revert
+
+# Listar migrations aplicadas
+npm run migration:show
 ```
 
-## Deployment AWS
-[Documento para deploy na AWS](https://any.coop/A925KpxVtHKRjSDxBdeqS9fMjnAtpVpSsgnVDmVUfCLawvcH/document-to-deploy-aws)
+## Testes
 
-## Resources
+```bash
+# Testes unitários
+npm run test
 
-Check out a few resources that may come in handy when working with NestJS:
+# Testes e2e
+npm run test:e2e
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+# Coverage
+npm run test:cov
+```
 
-## Support
+## Estrutura do Projeto
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```
+src/
+├── modules/          # Módulos da aplicação
+│   ├── auth/         # Autenticação e autorização
+│   ├── users/        # Gestão de usuários
+│   ├── products/     # Produtos
+│   ├── categories/   # Categorias
+│   ├── cart/         # Carrinho
+│   ├── orders/       # Pedidos
+│   └── payments/     # Pagamentos
+├── common/           # Utilitários, guards, filters, interceptors
+├── config/           # Configurações da aplicação
+└── main.ts           # Entry point
+```
 
-## Stay in touch
+## Variáveis de Ambiente
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```env
+# Database
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=realseubrilho
+DB_PASSWORD=sua_senha
+DB_DATABASE=realseubrilho
 
-## License
+# JWT
+JWT_SECRET=sua_secret_key
+JWT_EXPIRES_IN=7d
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+# E-mail
+MAIL_HOST=smtp.example.com
+MAIL_PORT=587
+MAIL_USER=seu_email
+MAIL_PASSWORD=sua_senha
+
+# Cloudinary
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+```
+
+## Licença
+
+UNLICENSED - Todos os direitos reservados.
